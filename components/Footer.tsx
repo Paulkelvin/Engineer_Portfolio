@@ -79,7 +79,7 @@ const Footer = () => {
                   href="mailto:ayodele.adeyemi@engineering.ng"
                   className="text-gray-300 hover:text-primary transition-colors duration-200"
                 >
-                  john.smith@email.com
+                  ayodele.adeyemi@engineering.ng
                 </a>
               </div>
               <div className="flex items-center space-x-3">
