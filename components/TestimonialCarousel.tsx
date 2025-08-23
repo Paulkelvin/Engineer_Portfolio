@@ -82,10 +82,10 @@ export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', su
         {/* Controls */}
         {items.length > 1 && (
           <>
-            <button onClick={prev} aria-label="Previous testimonial" className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95">
+            <button onClick={prev} aria-label="Previous testimonial" className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 p-5 md:p-6 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40">
               <ChevronLeft className="h-5 w-5 text-gray-700 group-active:translate-x-[-2px] transition" />
             </button>
-            <button onClick={next} aria-label="Next testimonial" className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95">
+            <button onClick={next} aria-label="Next testimonial" className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 p-5 md:p-6 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40">
               <ChevronRight className="h-5 w-5 text-gray-700 group-active:translate-x-[2px] transition" />
             </button>
           </>

@@ -120,10 +120,10 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4 leading-snug">
               Proven Track Record
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
               Numbers that speak to our commitment to excellence and innovation
             </p>
           </motion.div>
@@ -163,16 +163,16 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-800 leading-snug">
                 Meet Your Engineering Partner
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-base md:text-lg text-gray-600 leading-normal">
                 With over 15 years of experience in civil engineering, I've dedicated my career to 
                 creating sustainable, innovative infrastructure solutions. From iconic bridges to 
                 smart city developments, every project reflects my commitment to excellence, 
                 environmental responsibility, and cutting-edge technology.
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-base md:text-lg text-gray-600 leading-normal">
                 My expertise spans structural design, sustainable consulting, and project management, 
                 always with a focus on reducing environmental impact while maximizing efficiency and safety.
               </p>
@@ -218,10 +218,10 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8 leading-snug">
               Featured Projects
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
               A glimpse into some of our most innovative and impactful engineering solutions
             </p>
           </motion.div>

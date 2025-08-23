@@ -54,8 +54,8 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
-            <Building2 className="h-7 w-7 md:h-8 md:w-8 text-primary transition-transform duration-300 group-hover:rotate-6" />
-            <span className="text-lg md:text-xl font-bold text-gray-800 tracking-tight">Ayodele Adeyemi</span>
+            <Building2 className="h-6 w-6 md:h-8 md:w-8 text-primary transition-transform duration-300 group-hover:rotate-6" />
+            <span className="text-base md:text-xl font-bold text-gray-800 tracking-tight">Ayodele Adeyemi</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -91,14 +91,14 @@ const Navigation = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation (with elevated z-index to sit above overlay) */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-gray-200 shadow-sm"
+              className="md:hidden bg-white border-t border-gray-200 shadow-sm relative z-50"
             >
               <div className="px-4 py-4 space-y-1">
                 {navItems.map((item) => (
@@ -131,7 +131,7 @@ const Navigation = () => {
             animate={{ opacity: 0.4 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 top-14 md:hidden bg-black cursor-pointer"
+            className="fixed inset-0 top-14 md:hidden bg-black cursor-pointer z-40"
             onClick={() => setIsOpen(false)}
           />
         )}
