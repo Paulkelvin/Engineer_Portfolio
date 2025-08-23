@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import { ThemeProvider } from '@/components/ThemeProvider'
-
-const inter = Inter({ subsets: ['latin'] })
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400','500','600','700','800'] })
 
 export const metadata: Metadata = {
   title: 'Ayodele Adeyemi - Civil Engineer Portfolio',
@@ -34,17 +32,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider>
-          <div className="min-h-screen bg-background">
-            <Navigation />
-            <main className="pt-16">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </ThemeProvider>
+    <html lang="en">
+      <body className={`${plusJakarta.className} antialiased overflow-x-hidden bg-[#f4f6f9]`}>        
+          <Navigation />
+          <main className="pt-14 md:pt-16">
+            {children}
+          </main>
+          <Footer />
       </body>
     </html>
   )

@@ -106,8 +106,8 @@ const ContactPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-3 md:mb-4">Connect with Ayodele</h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto px-2">
+          <h1 className="hero-heading mb-3 md:mb-4">Connect with Ayodele</h1>
+          <p className="hero-sub text-gray-200 max-w-3xl mx-auto px-2">
             Ready to discuss your next engineering project? Let's explore how we can bring your vision to life.
           </p>
         </motion.div>

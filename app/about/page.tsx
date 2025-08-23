@@ -103,8 +103,8 @@ const AboutPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Meet Ayodele Adeyemi</h1>
-          <p className="text-lg md:text-xl text-gray-200">Passionate about building resilient, sustainable infrastructure across Nigeria & Africa</p>
+          <h1 className="hero-heading mb-3">Meet Ayodele Adeyemi</h1>
+          <p className="hero-sub text-gray-200">Passionate about building resilient, sustainable infrastructure across Nigeria & Africa</p>
         </motion.div>
       </section>
 

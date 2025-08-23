@@ -57,10 +57,10 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-4xl md:text-6xl font-bold mb-3 md:mb-6"
+            className="hero-heading mb-2 md:mb-4"
           >
             Ayodele Adeyemi
-            <span className="block text-3xl md:text-4xl font-normal text-blue-300 mt-2">
+            <span className="block text-2xl md:text-3xl font-medium text-blue-300 mt-1">
               Nigerian Civil Engineer
             </span>
           </motion.h1>
@@ -69,20 +69,12 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-2xl text-gray-200 mb-4 md:mb-6"
+            className="hero-sub mb-3 md:mb-4"
           >
             Innovating Sustainable Structures Worldwide
           </motion.h2>
           
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base md:text-lg text-gray-300 mb-6 md:mb-8 max-w-2xl mx-auto"
-          >
-            Specializing in innovative infrastructure solutions, sustainable design, and cutting-edge 
-            construction technologies. Transforming complex challenges into elegant, efficient solutions.
-          </motion.p>
+          {/* Removed long paragraph per request */}
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -1,3 +1,4 @@
+/* Base font imported via next/font (Plus Jakarta Sans). Keeping Montserrat fallback for legacy elements */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -9,36 +10,12 @@
   }
   
   body {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f5f5f5;
+    font-family: var(--font-plus-jakarta, 'Plus Jakarta Sans', 'Montserrat', sans-serif);
     margin: 0;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* Dark theme styles */
-  .dark body {
-    background-color: #1a1a1a;
-    color: #ffffff;
-  }
-
-  .dark .bg-white {
-    background-color: #2d2d2d;
-  }
-
-  .dark .bg-gray-50 {
-    background-color: #1a1a1a;
-  }
-
-  .dark .bg-gray-100 {
-    background-color: #374151;
-  }
-
-  .dark .hover\:bg-gray-100:hover {
-    background-color: #4b5563;
-  }
-
-  .dark .border-gray-200 {
-    border-color: #374151;
+    background: #f4f6f9;
+    background-image: radial-gradient(circle at 1px 1px, rgba(0,123,255,0.18) 0, rgba(0,123,255,0.18) 1px, transparent 1px),
+      linear-gradient(120deg, rgba(0,123,255,0.06), rgba(0,180,255,0.04));
+    background-size: 22px 22px, 100% 100%;
   }
 }
 
@@ -67,11 +44,22 @@
   }
   
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-8;
+    @apply py-14 md:py-20 px-4 sm:px-6 lg:px-8;
   }
   
   .container-custom {
     @apply max-w-7xl mx-auto;
+  }
+
+  /* Compact hero heading style for mobile */
+  .hero-heading {
+    @apply text-3xl leading-tight font-extrabold tracking-tight md:text-5xl md:leading-[1.1];
+  }
+  .hero-sub {
+    @apply text-base md:text-xl text-gray-200 md:leading-relaxed;
+  }
+  .hero-text {
+    @apply text-sm md:text-lg text-gray-300 leading-relaxed;
   }
 }
 
@@ -84,12 +72,8 @@
     @apply bg-white/80 backdrop-blur-sm border border-white/20;
   }
   
-  .parallax-bg {
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
+  .parallax-bg { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
+  .tap-target { @apply relative after:absolute after:inset-0 after:rounded-full after:bg-primary/5 after:scale-0 hover:after:scale-100 after:transition; }
 }
 
 /* Custom scrollbar */

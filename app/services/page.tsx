@@ -208,8 +208,8 @@ const ServicesPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-3 md:mb-4">Comprehensive Civil Engineering Services</h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto">
+          <h1 className="hero-heading mb-3 md:mb-4">Comprehensive Civil Engineering Services</h1>
+          <p className="hero-sub text-gray-200 max-w-3xl mx-auto">
             From concept to completion, delivering innovative solutions that build sustainable futures
           </p>
         </motion.div>

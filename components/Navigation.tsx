@@ -1,17 +1,16 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Sun, Moon, Building2 } from 'lucide-react'
-import { useTheme } from './ThemeProvider'
+import { Menu, X, Building2 } from 'lucide-react'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
-  const { theme, toggleTheme } = useTheme()
+  const navRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +19,23 @@ const Navigation = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [isOpen])
 
   const navItems = [
     { name: 'Home', href: '/' },
@@ -31,27 +47,27 @@ const Navigation = () => {
   ]
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg' : 'bg-transparent'
+    <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/90 backdrop-blur-md shadow-lg' : 'bg-transparent'
     }`}>
-      <div className="container-custom">
-        <div className="flex items-center justify-between h-16">
+      <div className="container-custom px-4">
+        <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <Building2 className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-gray-800 dark:text-white">Ayodele Adeyemi</span>
+          <Link href="/" className="flex items-center space-x-2 group">
+            <Building2 className="h-7 w-7 md:h-8 md:w-8 text-primary transition-transform duration-300 group-hover:rotate-6" />
+            <span className="text-lg md:text-xl font-bold text-gray-800 tracking-tight">Ayodele Adeyemi</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
+                className={`text-sm font-medium transition-colors duration-200 relative after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:bg-primary after:transition-all after:duration-300 ${
                   pathname === item.href
-                    ? 'text-primary'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-primary'
+                    ? 'text-primary after:w-full'
+                    : 'text-gray-600 hover:text-primary after:w-0 hover:after:w-full'
                 }`}
               >
                 {item.name}
@@ -59,31 +75,17 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Right side - Theme toggle and mobile menu button */}
-          <div className="flex items-center space-x-4">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Sun className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              )}
-            </button>
-
-            {/* Mobile menu button */}
+          {/* Mobile menu button */}
+          <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-              aria-label="Toggle mobile menu"
+              className="p-2 rounded-md bg-white/80 backdrop-blur shadow-sm ring-1 ring-gray-200 hover:ring-primary/40 transition active:scale-95"
+              aria-label="Toggle navigation menu"
             >
               {isOpen ? (
-                <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <X className="h-5 w-5 text-gray-700" />
               ) : (
-                <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <Menu className="h-5 w-5 text-gray-700" />
               )}
             </button>
           </div>
@@ -96,18 +98,18 @@ const Navigation = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700"
+              className="md:hidden bg-white border-t border-gray-200 shadow-sm"
             >
-              <div className="px-4 py-4 space-y-2">
+              <div className="px-4 py-4 space-y-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                       pathname === item.href
                         ? 'text-primary bg-blue-50'
-                        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                        : 'text-gray-700 hover:text-primary hover:bg-gray-50'
                     }`}
                   >
                     {item.name}
@@ -118,6 +120,22 @@ const Navigation = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Overlay to close menu when clicking outside */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.button
+            aria-label="Close menu"
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 top-14 md:hidden bg-black cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </nav>
   )
 }

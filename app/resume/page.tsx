@@ -197,8 +197,8 @@ const ResumePage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-3 md:mb-4">Professional Resume</h1>
-          <p className="text-lg md:text-xl text-gray-200">Comprehensive overview of my engineering career and achievements</p>
+          <h1 className="hero-heading mb-3 md:mb-4">Professional Resume</h1>
+          <p className="hero-sub text-gray-200">Comprehensive overview of my engineering career and achievements</p>
         </motion.div>
       </section>
 
