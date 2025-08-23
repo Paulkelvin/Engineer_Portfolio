@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Dark theme styles */
+  .dark body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+
+  .dark .bg-white {
+    background-color: #2d2d2d;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: #1a1a1a;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: #374151;
+  }
+
+  .dark .hover\:bg-gray-100:hover {
+    background-color: #4b5563;
+  }
+
+  .dark .border-gray-200 {
+    border-color: #374151;
+  }
+}
+
+@layer components {
+  /* Refined classic buttons */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center font-semibold tracking-wide px-7 py-3 rounded-lg shadow-md bg-gradient-to-b from-primary/95 to-primary focus:outline-none focus:ring-2 focus:ring-primary/40 text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed before:absolute before:inset-0 before:rounded-lg before:bg-white/10 before:opacity-0 hover:before:opacity-100;
+  }
+  .btn-primary:after {
+    content:"";
+    @apply absolute -inset-px rounded-lg border border-white/20 pointer-events-none;
+  }
+  .btn-secondary {
+    @apply relative inline-flex items-center justify-center font-semibold tracking-wide px-7 py-3 rounded-lg shadow-md bg-gradient-to-b from-secondary/95 to-secondary focus:outline-none focus:ring-2 focus:ring-secondary/40 text-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed before:absolute before:inset-0 before:rounded-lg before:bg-white/10 before:opacity-0 hover:before:opacity-100;
+  }
+  .btn-secondary:after {
+    content:"";
+    @apply absolute -inset-px rounded-lg border border-white/20 pointer-events-none;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center font-medium px-6 py-3 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105;
+  }
+  
+  .section-padding {
+    @apply py-16 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+  
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  }
+  
+  .parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #007bff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0056b3;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Loading animation */
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
