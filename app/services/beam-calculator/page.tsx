@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useMemo } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Download, Ruler, Zap, Wrench, ChevronDown, Calculator, ExternalLink, ArrowRight } from 'lucide-react'
@@ -66,47 +67,60 @@ function calcMomentOfInertia(inputs: BeamInputs) {
   return Math.PI * Math.pow(inputs.diameter, 4) / 64
 }
 
+interface CalcWarning { code: string; message: string; severity: 'info' | 'warn' | 'error' }
 interface Results {
-  deflectionMax: number
+  deflectionMax: number // absolute (m)
   shearMax: number
   momentMax: number
   safetyFactor: number
-  deflectionRatio: number // L / delta
+  deflectionRatio: number
   serviceabilityPass: boolean
   utilizationFlexure: number
   utilizationDeflection: number
+  warnings: CalcWarning[]
 }
 
 function computeResults(i: BeamInputs): Results | null {
   if (i.length <= 0 || i.loadValue <= 0) return null
+  const warnings: CalcWarning[] = []
   const E = MATERIALS[i.material].E
   const yieldStress = MATERIALS[i.material].yield
   const I = calcMomentOfInertia(i)
+  if (I <= 0) {
+    warnings.push({ code:'I_ZERO', message:'Section moment of inertia must be > 0.', severity:'error' })
+    return { deflectionMax:0, shearMax:0, momentMax:0, safetyFactor:0, deflectionRatio:Infinity, serviceabilityPass:true, utilizationFlexure:0, utilizationDeflection:0, warnings }
+  }
   const L = i.length
   const loadFactor = i.loadFactor || 1
-  const P = i.loadValue * 1000 * (i.loadType==='Point Load'? loadFactor:1) // convert kN to N (factor only for point for simplicity)
-  const w = i.loadValue * 1000 * (i.loadType==='Uniform Distributed Load'? loadFactor:1) // kN/m to N/m
+  const baseVal = i.loadValue * 1000
+  const P = baseVal * (i.loadType==='Point Load'? loadFactor:1)
+  const w = baseVal * (i.loadType==='Uniform Distributed Load'? loadFactor:1)
 
   let deflectionMax = 0
   let shearMax = 0
   let momentMax = 0
 
-  if (i.support === 'Simply Supported') {
+  const unsupportedFixedPoint = i.support === 'Fixed Both Ends' && i.loadType === 'Point Load'
+  if (unsupportedFixedPoint) {
+    warnings.push({ code:'UNSUPPORTED', message:'Fixed both ends + point load not implemented. Switch load/support or use UDL.', severity:'error' })
+  } else if (i.support === 'Simply Supported') {
     if (i.loadType === 'Point Load') {
-      const a = i.loadPosition
+      const a = clamp(i.loadPosition,0,L)
+      if (a !== i.loadPosition) warnings.push({ code:'POS_CLAMP', message:'Load position clamped inside span.', severity:'warn' })
       const b = L - a
-      // Max deflection at somewhere between; use standard for center if central: δmax = P a b (L^2 - a b)/(3 E I L)
-      deflectionMax = (P * a * b * (Math.pow(L,2) - a * b)) / (3 * E * I * L)
-      shearMax = P * Math.max(a,b)/L // reaction approx
+      deflectionMax = (P * a * b * (L*L - a * b)) / (3 * E * I * L)
+      shearMax = P * Math.max(a,b)/L
       momentMax = P * a * b / L
-    } else { // UDL
+    } else {
       deflectionMax = (5 * w * Math.pow(L,4)) / (384 * E * I)
       shearMax = w * L / 2
       momentMax = w * Math.pow(L,2) / 8
     }
   } else if (i.support === 'Cantilever') {
     if (i.loadType === 'Point Load') {
-      // Point load at free end (assume if position near end)
+      // assume free-end if near end else approximate
+      const a = clamp(i.loadPosition,0,L)
+      if (Math.abs(a - L) > 1e-6) warnings.push({ code:'POINT_OFFSET', message:'Cantilever point load assumed at free end for formula.', severity:'info' })
       deflectionMax = P * Math.pow(L,3) / (3 * E * I)
       shearMax = P
       momentMax = P * L
@@ -116,39 +130,46 @@ function computeResults(i: BeamInputs): Results | null {
       momentMax = w * Math.pow(L,2) / 2
     }
   } else if (i.support === 'Fixed Both Ends') {
-    if (i.loadType === 'Point Load') {
-      // Approx central load assumption
-      deflectionMax = (P * Math.pow(L,3)) / (192 * E * I)
-      shearMax = P/2
-      momentMax = P * L / 8
-    } else {
+    // Only UDL implemented here
+    if (i.loadType === 'Uniform Distributed Load') {
       deflectionMax = (w * Math.pow(L,4)) / (384 * E * I)
       shearMax = w * L / 2
       momentMax = w * Math.pow(L,2) / 12
     }
   }
 
-  // Section modulus Z for rectangular or circular
+  // Section modulus Z
   let Z: number
   if (i.sectionShape === 'Rectangular') {
+    if (i.width <=0 || i.height <=0) warnings.push({ code:'SECTION_DIM', message:'Width/height must be > 0.', severity:'error' })
     Z = (i.width * Math.pow(i.height,2)) / 6
   } else {
+    if (i.diameter <=0) warnings.push({ code:'SECTION_DIM', message:'Diameter must be > 0.', severity:'error' })
     Z = Math.PI * Math.pow(i.diameter,3) / 32
   }
-  const bendingStress = momentMax / Z // Pa
-  const safetyFactor = yieldStress / bendingStress
+  let bendingStress = 0
+  if (Z > 0) bendingStress = momentMax / Z
+  else warnings.push({ code:'Z_ZERO', message:'Section modulus invalid (check dimensions).', severity:'error' })
+
+  const safetyFactor = bendingStress>0 ? yieldStress / bendingStress : 0
+  if (safetyFactor === 0) warnings.push({ code:'SF_ZERO', message:'Safety factor could not be evaluated.', severity:'warn' })
+
   const deflectionRatio = deflectionMax>0 ? L / deflectionMax : Infinity
   const serviceabilityPass = deflectionMax>0 ? (L/deflectionMax) >= i.deflectionLimit : true
-  // Simple utilization approximations
-  const utilizationFlexure = bendingStress / yieldStress
+  const utilizationFlexure = bendingStress>0? bendingStress / yieldStress : 0
   const utilizationDeflection = deflectionMax>0 ? (deflectionMax / (L / i.deflectionLimit)) : 0
-  return { deflectionMax, shearMax, momentMax, safetyFactor, deflectionRatio, serviceabilityPass, utilizationFlexure, utilizationDeflection }
+
+  if ((i.loadType==='Point Load'?P:w)*Math.pow(L,4) > 1e16) warnings.push({ code:'NUM_SCALE', message:'Large load/span may reduce numerical accuracy.', severity:'info' })
+
+  return { deflectionMax: Math.abs(deflectionMax), shearMax: Math.abs(shearMax), momentMax: Math.abs(momentMax), safetyFactor, deflectionRatio, serviceabilityPass, utilizationFlexure, utilizationDeflection, warnings }
 }
+
+function clamp(v:number,min:number,max:number){ return Math.min(max, Math.max(min,v)) }
 
 export default function BeamCalculatorPage() {
   const [inputs, setInputs] = useState<BeamInputs>(defaultInputs)
   const [results, setResults] = useState<Results | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false) // retained (not currently used extensively)
   const [step, setStep] = useState(1) // 1: Span, 2: Section, 3: Loading, 4: Results
   const [processing, setProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -158,6 +179,115 @@ export default function BeamCalculatorPage() {
   const chartRefMoment = useRef<HTMLCanvasElement | null>(null)
   const chartRefDeflect = useRef<HTMLCanvasElement | null>(null)
   const charts = useRef<Chart[]>([])
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Scenario management
+  interface Scenario { name: string; inputs: BeamInputs }
+  const [scenarios, setScenarios] = useState<Scenario[]>([])
+  const [scenarioName, setScenarioName] = useState('')
+  const [shareCopied, setShareCopied] = useState(false)
+  const shareTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const ariaMsgRef = useRef<string>('')
+  const [, setAriaTick] = useState(0) // force rerender for aria live updates
+
+  // Load from share URL (s param) or last inputs
+  useEffect(() => {
+    try {
+      const s = searchParams?.get('s')
+      if (s) {
+        const decoded = JSON.parse(atob(s)) as Partial<BeamInputs>
+        setInputs(prev => ({ ...prev, ...decoded }))
+        router.replace('/services/beam-calculator') // clean URL
+      } else {
+        const lastRaw = localStorage.getItem('beamCalc:last')
+        if (lastRaw) {
+          const parsed = JSON.parse(lastRaw)
+          setInputs(prev => ({ ...prev, ...parsed }))
+        }
+      }
+    } catch { /* ignore decode errors */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Persist last inputs
+  useEffect(() => {
+    try { localStorage.setItem('beamCalc:last', JSON.stringify(inputs)) } catch {}
+  }, [inputs])
+
+  // Load scenarios list
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('beamCalc:scenarios')
+      if (raw) setScenarios(JSON.parse(raw))
+    } catch {}
+  }, [])
+
+  const persistScenarios = (next: Scenario[]) => {
+    setScenarios(next)
+    try { localStorage.setItem('beamCalc:scenarios', JSON.stringify(next)) } catch {}
+  }
+
+  const saveScenario = () => {
+    if (!scenarioName.trim()) return
+    const existingIndex = scenarios.findIndex(s => s.name.toLowerCase() === scenarioName.trim().toLowerCase())
+    const nextScenario: Scenario = { name: scenarioName.trim(), inputs }
+    let next = [...scenarios]
+    if (existingIndex >= 0) next[existingIndex] = nextScenario
+    else next.push(nextScenario)
+    persistScenarios(next)
+    setScenarioName('')
+    ariaAnnounce('Scenario saved')
+  }
+
+  const loadScenario = (name: string) => {
+    const sc = scenarios.find(s => s.name === name)
+    if (sc) { setInputs(sc.inputs); ariaAnnounce(`Scenario ${name} loaded`) }
+  }
+
+  const deleteScenario = (name: string) => {
+    const next = scenarios.filter(s => s.name !== name)
+    persistScenarios(next)
+    ariaAnnounce(`Scenario ${name} deleted`)
+  }
+
+  // Share link builder
+  const buildShareLink = () => {
+    try {
+      const json = JSON.stringify(inputs)
+      const encoded = btoa(json)
+      return `${window.location.origin}/services/beam-calculator?s=${encodeURIComponent(encoded)}`
+    } catch { return window.location.href }
+  }
+
+  const copyShareLink = () => {
+    const link = buildShareLink()
+    navigator.clipboard.writeText(link).then(() => {
+      setShareCopied(true)
+      ariaAnnounce('Share link copied')
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current)
+      shareTimerRef.current = setTimeout(()=> setShareCopied(false), 2200)
+    })
+  }
+
+  // Keyboard navigation for steps
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') { if (step < 4) { e.preventDefault(); goNext() } }
+      if (e.key === 'ArrowLeft') { if (step > 1) { e.preventDefault(); goPrev() } }
+      if (e.key === 'Enter' && (document.activeElement?.tagName !== 'TEXTAREA')) {
+        if (step < 4) { e.preventDefault(); goNext() }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [step])
+
+  // Aria live announcements
+  const ariaAnnounce = (msg: string) => {
+    ariaMsgRef.current = msg
+    setAriaTick(t=>t+1)
+  }
 
   // Processing animation when entering results step or when recalculating
   useEffect(() => {
@@ -175,15 +305,18 @@ export default function BeamCalculatorPage() {
       const timer = setTimeout(() => {
         setResults(computeResults(inputs))
         setProcessing(false)
+  ariaAnnounce('Calculation completed')
       }, 950)
       return () => clearTimeout(timer)
     }
   }, [step, inputs])
 
   const numericHandler = (field: keyof BeamInputs) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value)
+    const raw = e.target.value
+    const value = parseFloat(raw)
     setInputs(prev => {
-      let next: BeamInputs = { ...prev, [field]: isNaN(value) ? 0 : value }
+      if (raw === '') return { ...prev } // ignore empty to avoid flicker 0
+      let next: BeamInputs = { ...prev, [field]: isNaN(value) ? prev[field] as any : value }
       // Clamp load position if length changed shorter
       if (field === 'length' && next.loadPosition > next.length) {
         next.loadPosition = parseFloat((next.length / 2).toFixed(2))
@@ -210,23 +343,39 @@ export default function BeamCalculatorPage() {
   }
 
   // Step validation logic
-  const isStepValid = (s: number) => {
+  const [stepErrors, setStepErrors] = useState<string[]>([])
+
+  const validateStep = (s:number): boolean => {
+    const errs: string[] = []
     if (s === 1) {
-      return inputs.length > 0 && !!inputs.support
+      if (!(inputs.length > 0)) errs.push('Beam length must be > 0')
+      if (!inputs.support) errs.push('Select a support type')
     }
     if (s === 2) {
-      if (inputs.sectionShape === 'Rectangular') return inputs.width > 0 && inputs.height > 0 && !!inputs.material
-      return inputs.diameter > 0 && !!inputs.material
+      if (inputs.sectionShape === 'Rectangular') {
+        if (!(inputs.width>0)) errs.push('Width must be > 0')
+        if (!(inputs.height>0)) errs.push('Height must be > 0')
+      } else {
+        if (!(inputs.diameter>0)) errs.push('Diameter must be > 0')
+      }
     }
     if (s === 3) {
-      if (inputs.loadType === 'Point Load') return inputs.loadValue > 0 && inputs.loadPosition >= 0 && inputs.loadPosition <= inputs.length
-      return inputs.loadValue > 0
+      if (!(inputs.loadValue>0)) errs.push('Load value must be > 0')
+      if (inputs.loadType === 'Point Load') {
+        if (inputs.loadPosition < 0 || inputs.loadPosition > inputs.length) errs.push('Point load position must be inside span')
+      }
+      if (showAdvanced) {
+        if (!(inputs.loadFactor>0)) errs.push('Load factor must be > 0')
+        if (!(inputs.deflectionLimit>0)) errs.push('Deflection limit must be > 0')
+      }
     }
-    return true
+    setStepErrors(errs)
+    return errs.length === 0
   }
 
   const goNext = () => setStep(s => {
-    if (!isStepValid(s)) return s
+    const valid = validateStep(s)
+    if (!valid) return s
     return Math.min(4, s + 1)
   })
   const goPrev = () => setStep(s => Math.max(1, s - 1))
@@ -337,10 +486,21 @@ export default function BeamCalculatorPage() {
       pdf.text(`Max Shear: ${(results.shearMax/1000).toFixed(2)} kN`, 40, 100)
       pdf.text(`Max Moment: ${(results.momentMax/1000).toFixed(2)} kN·m`, 40, 115)
       pdf.text(`Safety Factor: ${results.safetyFactor.toFixed(2)}`, 40, 130)
+      pdf.text(`Deflection Ratio L/${results.deflectionRatio.toFixed(0)} (Limit L/${inputs.deflectionLimit})`, 40, 145)
+      if (results.warnings.length) {
+        pdf.text('Warnings:', 40, 170)
+        let y = 185
+        results.warnings.slice(0,10).forEach(w => {
+          pdf.text(`[${w.severity.toUpperCase()}] ${w.message.substring(0,90)}`, 50, y)
+          y += 14
+          if (y > 760) { pdf.addPage(); y = 60 }
+        })
+      }
     }
     // capture charts sequentially
     const chartCanvases = [chartRef.current, chartRefMoment.current, chartRefDeflect.current]
     let y = 160
+    if (results?.warnings.length) y = 320 // shift down if warnings printed
     for (const c of chartCanvases) {
       if (!c) continue
       const canvasImg = c.toDataURL('image/png', 1.0)
@@ -354,10 +514,11 @@ export default function BeamCalculatorPage() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (step < 4) {
-      if (isStepValid(step)) goNext()
+      if (validateStep(step)) goNext()
       return
     }
     // Recalculate with processing feel
+    if (!validateStep(3)) { setStep(3); return }
     setProcessing(true)
     setProgress(0)
     const start = performance.now()
@@ -369,7 +530,7 @@ export default function BeamCalculatorPage() {
     }
     requestAnimationFrame(animate)
     setTimeout(() => {
-      setResults(computeResults(inputs))
+  setResults(computeResults(inputs))
       setProcessing(false)
     }, 950)
   }
@@ -419,6 +580,26 @@ export default function BeamCalculatorPage() {
                 )
               })}
             </ol>
+            {/* Scenario manager */}
+            <div className="space-y-2 rounded-md bg-gray-50 border border-gray-200 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <input value={scenarioName} onChange={e=>setScenarioName(e.target.value)} placeholder="Scenario name" className="flex-1 px-2 py-1.5 rounded border border-gray-300 bg-white text-[11px] focus:ring-2 focus:ring-primary focus:border-transparent" />
+                <button type="button" onClick={saveScenario} className="px-3 py-1.5 rounded bg-primary text-white text-[11px] font-medium hover:shadow disabled:opacity-50" disabled={!scenarioName.trim()}>Save</button>
+              </div>
+              {scenarios.length>0 && (
+                <div className="flex items-center gap-2">
+                  <select onChange={e=> e.target.value && loadScenario(e.target.value)} className="flex-1 px-2 py-1.5 rounded border border-gray-300 bg-white text-[11px]">
+                    <option value="">Load scenario…</option>
+                    {scenarios.map(s=> <option key={s.name}>{s.name}</option>)}
+                  </select>
+                  <button type="button" onClick={()=> { const name = prompt('Delete which scenario? (exact name)') ; if (name) deleteScenario(name) }} className="px-2 py-1.5 rounded bg-gray-200 text-gray-700 text-[11px] font-medium hover:bg-gray-300">Del</button>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button type="button" onClick={copyShareLink} className="flex-1 text-[11px] px-2 py-1.5 rounded bg-gradient-to-r from-secondary/20 to-primary/20 text-gray-700 font-medium hover:from-secondary/30 hover:to-primary/30">{shareCopied? 'Link Copied' : 'Copy Share Link'}</button>
+                <button type="button" onClick={()=> { setInputs(defaultInputs); ariaAnnounce('Inputs reset')}} className="px-2 py-1.5 rounded bg-gray-100 text-gray-600 text-[11px] hover:bg-gray-200">Reset</button>
+              </div>
+            </div>
             {step === 4 && (
               <div className="lg:hidden text-[11px] font-medium text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2 -mt-1">All steps complete. Scroll to view graphs & export analysis below.</div>
             )}
@@ -544,6 +725,9 @@ export default function BeamCalculatorPage() {
                 <button type="button" onClick={handleExportPDF} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-100 text-gray-700 font-medium tracking-wide hover:bg-gray-200 transition">
                   <Download className="h-4 w-4" /> Export PDF
                 </button>
+                <button type="button" onClick={copyShareLink} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary/10 text-secondary-800 font-medium tracking-wide hover:bg-secondary/20 transition">
+                  <ExternalLink className="h-4 w-4" /> {shareCopied? 'Link Copied' : 'Copy Share Link'}
+                </button>
                 <a href="/contact" className="block text-center text-sm text-primary hover:text-blue-700 font-medium transition">Contact for Custom Analysis →</a>
               </div>
             )}
@@ -551,8 +735,13 @@ export default function BeamCalculatorPage() {
             {/* Navigation buttons */}
             <div className="pt-2 flex gap-3">
               {step > 1 && <button type="button" onClick={goPrev} className="flex-1 px-4 py-2 rounded-md bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition">Back</button>}
-              {step < 4 && <button type="button" onClick={goNext} disabled={!isStepValid(step)} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow transition">Next</button>}
+              {step < 4 && <button type="button" onClick={goNext} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:shadow transition">Next</button>}
             </div>
+            {stepErrors.length>0 && (
+              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[11px] space-y-1" aria-live="assertive">
+                {stepErrors.map(err => <p key={err}>• {err}</p>)}
+              </div>
+            )}
             <style jsx>{`
               @keyframes splashRing { 0% { transform: scale(.3); opacity: .9;} 60% { transform: scale(1.4); opacity:0;} 100% { transform: scale(1.6); opacity:0;} }
               @keyframes pulseFast { 0%,100% { opacity:.35;} 50% { opacity:.15;} }
@@ -609,7 +798,7 @@ export default function BeamCalculatorPage() {
               </motion.div>
             )}
 
-            {step === 4 && !processing && results && (
+            {step === 4 && !processing && results && !results.warnings.some(w=>w.severity==='error') && (
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl shadow ring-1 ring-gray-100 p-4">
                 <h3 className="font-semibold mb-2 text-sm">Shear Force Diagram</h3>
@@ -621,11 +810,18 @@ export default function BeamCalculatorPage() {
               </div>
             </motion.div>
             )}
-            {step === 4 && !processing && results && (
+            {step === 4 && !processing && results && !results.warnings.some(w=>w.severity==='error') && (
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="bg-white rounded-xl shadow ring-1 ring-gray-100 p-4">
               <h3 className="font-semibold mb-2 text-sm">Deflection Curve</h3>
               <canvas ref={chartRefDeflect} className="h-56" />
             </motion.div>
+            )}
+            {step === 4 && !processing && results && results.warnings.length>0 && (
+              <div className="mt-2 space-y-1 text-[11px]">
+                {results.warnings.map(w => (
+                  <div key={w.code} className={`px-3 py-2 rounded-md border text-xs flex items-start gap-2 ${w.severity==='error'?'bg-red-50 border-red-200 text-red-700': w.severity==='warn'?'bg-amber-50 border-amber-200 text-amber-700':'bg-blue-50 border-blue-200 text-blue-700'}`}>[{w.severity.toUpperCase()}] {w.message}</div>
+                ))}
+              </div>
             )}
 
             <div className="text-xs text-gray-500 leading-relaxed pt-4">
@@ -633,6 +829,7 @@ export default function BeamCalculatorPage() {
             </div>
           </div>
         </div>
+  <div aria-live="polite" className="sr-only">{ariaMsgRef.current}</div>
       </div>
     </div>
   )
