@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Ruler, Zap, Wrench, ChevronDown, Calculator, ExternalLink, ArrowRight } from 'lucide-react'
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js'
 import html2canvas from 'html2canvas'
@@ -174,6 +174,8 @@ export default function BeamCalculatorPage() {
   const [processing, setProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [autoFromShare, setAutoFromShare] = useState(false)
+  const [sharedNotice, setSharedNotice] = useState('')
   const prevStepRef = useRef(step)
   const chartRef = useRef<HTMLCanvasElement | null>(null)
   const chartRefMoment = useRef<HTMLCanvasElement | null>(null)
@@ -198,6 +200,9 @@ export default function BeamCalculatorPage() {
       if (s) {
         const decoded = JSON.parse(atob(s)) as Partial<BeamInputs>
         setInputs(prev => ({ ...prev, ...decoded }))
+        setAutoFromShare(true)
+        setSharedNotice('Shared scenario loaded. Running analysis…')
+        setStep(4) // jump directly to results and trigger processing
         router.replace('/services/beam-calculator') // clean URL
       } else {
         const lastRaw = localStorage.getItem('beamCalc:last')
@@ -303,13 +308,17 @@ export default function BeamCalculatorPage() {
       }
       requestAnimationFrame(animate)
       const timer = setTimeout(() => {
-        setResults(computeResults(inputs))
+        const r = computeResults(inputs)
+        setResults(r)
         setProcessing(false)
-  ariaAnnounce('Calculation completed')
+        if (autoFromShare) setSharedNotice('Shared scenario analysis complete.')
+        ariaAnnounce('Calculation completed')
       }, 950)
       return () => clearTimeout(timer)
+    } else {
+      setSharedNotice('')
     }
-  }, [step, inputs])
+  }, [step, inputs, autoFromShare])
 
   const numericHandler = (field: keyof BeamInputs) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
@@ -383,17 +392,6 @@ export default function BeamCalculatorPage() {
   // Track previous step for splash animation
   useEffect(() => { prevStepRef.current = step }, [step])
 
-  // Force chart re-init when entering step 4 (ensures images/charts render)
-  useEffect(() => {
-    if (step === 4) {
-      // defer to next frame so DOM ready
-      requestAnimationFrame(() => {
-        const r = computeResults(inputs)
-        setResults(r)
-      })
-    }
-  }, [step, inputs])
-
   const steps = [
     { id: 1, title: 'Span & Support', desc: 'Beam length, units & support conditions' },
     { id: 2, title: 'Section & Material', desc: 'Geometry and material properties' },
@@ -460,20 +458,20 @@ export default function BeamCalculatorPage() {
     return { xs, shear, moment, deflect }
   }, [inputs])
 
-  // Render charts
+  // Render charts only after processing completes & results ready
   useEffect(() => {
     const createChart = (ctx: CanvasRenderingContext2D, label: string, data: number[], color: string) => new Chart(ctx, {
       type: 'line',
-      data: { labels: diagramData.xs.map(x => x.toFixed(2)), datasets: [{ label, data, borderColor: color, tension: 0.3, pointRadius: 0 }] },
-      options: { responsive: true, animation: { duration: 600 }, plugins: { legend: { display: true } }, scales: { x: { ticks: { maxTicksLimit: 6 } } } }
+      data: { labels: diagramData.xs.map(x => x.toFixed(2)), datasets: [{ label, data, borderColor: color, tension: 0.25, pointRadius: 0, borderWidth: 2 }] },
+      options: { responsive: true, animation: { duration: 550, easing: 'easeOutQuart' }, plugins: { legend: { display: true } }, scales: { x: { ticks: { maxTicksLimit: 6 } } } }
     })
-    if (step !== 4) return
+    if (step !== 4 || processing || !results || results.warnings.some(w=>w.severity==='error')) return
     charts.current.forEach(c => c.destroy())
     charts.current = []
     if (chartRef.current) charts.current.push(createChart(chartRef.current.getContext('2d')!, 'Shear (kN)', diagramData.shear, '#0d6efd'))
     if (chartRefMoment.current) charts.current.push(createChart(chartRefMoment.current.getContext('2d')!, 'Moment (kN·m)', diagramData.moment, '#6610f2'))
     if (chartRefDeflect.current) charts.current.push(createChart(chartRefDeflect.current.getContext('2d')!, 'Deflection (mm)', diagramData.deflect, '#198754'))
-  }, [diagramData, step])
+  }, [diagramData, step, processing, results])
 
   const handleExportPDF = async () => {
     const pdf = new jsPDF('p','pt','a4')
@@ -611,9 +609,11 @@ export default function BeamCalculatorPage() {
 
             <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent lg:hidden" />
 
-            {/* Step content */}
-            {step === 1 && (
-              <div className="space-y-4">
+            {/* Step content with animated transitions */}
+            <div className="relative min-h-[250px]">
+              <AnimatePresence mode="wait">
+                {step === 1 && (
+                  <motion.div key="step1" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Ruler className="h-5 w-5 text-primary" /> Span & Support</h2>
                   <button type="button" onClick={toggleUnits} className="text-xs px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">{inputs.unitSystem === 'metric' ? 'Use Imperial' : 'Use Metric'}</button>
@@ -630,10 +630,10 @@ export default function BeamCalculatorPage() {
                     <option>Fixed Both Ends</option>
                   </select>
                 </div>
-              </div>
-            )}
-            {step === 2 && (
-              <div className="space-y-4">
+                  </motion.div>
+                )}
+                {step === 2 && (
+                  <motion.div key="step2" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Wrench className="h-5 w-5 text-primary" /> Section & Material</h2>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Material</label>
@@ -662,10 +662,10 @@ export default function BeamCalculatorPage() {
                     <input type="number" step="0.01" min={0.001} value={inputs.diameter} onChange={numericHandler('diameter')} className="w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-sm" />
                   </div>
                 )}
-              </div>
-            )}
-            {step === 3 && (
-              <div className="space-y-4">
+                  </motion.div>
+                )}
+                {step === 3 && (
+                  <motion.div key="step3" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Zap className="h-5 w-5 text-primary" /> Loading</h2>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Load Type</label>
@@ -703,10 +703,10 @@ export default function BeamCalculatorPage() {
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-            {step === 4 && (
-              <div className="space-y-5">
+                  </motion.div>
+                )}
+                {step === 4 && (
+                  <motion.div key="step4" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.4, ease:'easeOut'}} className="space-y-5 absolute inset-0">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Calculator className="h-5 w-5 text-primary" /> Results & Export</h2>
                 <div className="text-xs grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-50">
                   <div><span className="font-medium text-gray-700">L:</span> {inputs.length.toFixed(2)} {unit}</div>
@@ -729,8 +729,10 @@ export default function BeamCalculatorPage() {
                   <ExternalLink className="h-4 w-4" /> {shareCopied? 'Link Copied' : 'Copy Share Link'}
                 </button>
                 <a href="/contact" className="block text-center text-sm text-primary hover:text-blue-700 font-medium transition">Contact for Custom Analysis →</a>
-              </div>
-            )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Navigation buttons */}
             <div className="pt-2 flex gap-3">
@@ -768,6 +770,7 @@ export default function BeamCalculatorPage() {
                   <div className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-200" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="text-[10px] tracking-wide text-gray-500 uppercase">Shear • Moment • Deflection • Safety</div>
+                {sharedNotice && <div className="text-[11px] text-primary font-medium mt-1">{sharedNotice}</div>}
               </motion.div>
             )}
             {step === 4 && !processing && results && (
