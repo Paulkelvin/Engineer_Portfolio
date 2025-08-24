@@ -49,16 +49,17 @@ export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', su
         <AnimatePresence mode="wait">
           <motion.div
             key={current.name + index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.45 }}
+            initial={{ opacity: 0, y: 16, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -16, filter: 'blur(4px)' }}
+            transition={{ duration: 0.55, ease: [0.22,0.68,0,1] }}
             className="rounded-3xl bg-white shadow-xl ring-1 ring-gray-100 p-6 sm:p-10 overflow-hidden"
           >
             <div className="absolute -top-14 -right-14 w-44 h-44 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl" />
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-white shadow-lg mx-auto md:mx-0">
-                <Image src={current.photo} alt={current.name} width={200} height={200} className="w-full h-full object-cover" />
+              <div className="flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-white shadow-lg mx-auto md:mx-0 relative group">
+                <Image src={current.photo} alt={current.name} width={200} height={200} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <span className="absolute inset-0 bg-gradient-to-tr from-primary/0 to-secondary/0 opacity-0 group-hover:opacity-10 transition-opacity" />
               </div>
               <div className="flex-1">
                 <blockquote className="relative text-base sm:text-lg md:text-xl leading-relaxed text-gray-700 font-medium mb-6 pl-8">

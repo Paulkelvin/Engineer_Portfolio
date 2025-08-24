@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion'
 import { Menu, X, Building2 } from 'lucide-react'
 
 const Navigation = () => {
@@ -46,10 +46,15 @@ const Navigation = () => {
     { name: 'Contact', href: '/contact' },
   ]
 
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 })
+
   return (
     <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/90 backdrop-blur-md shadow-lg' : 'bg-transparent'
     }`}>
+      {/* Scroll progress bar */}
+      <motion.div style={{ scaleX }} className="h-0.5 origin-left bg-gradient-to-r from-primary via-secondary to-primary/60" />
       <div className="container-custom px-4">
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
@@ -59,20 +64,27 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`text-sm font-medium transition-colors duration-200 relative after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:bg-primary after:transition-all after:duration-300 ${
-                  pathname === item.href
-                    ? 'text-primary after:w-full'
-                    : 'text-gray-600 hover:text-primary after:w-0 hover:after:w-full'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center space-x-1">
+            {navItems.map((item) => {
+              const active = pathname === item.href
+              return (
+                <motion.div key={item.name} whileHover={{ y: -2 }} className="px-3">
+                  <Link
+                    href={item.href}
+                    className={`relative inline-flex items-center text-sm font-medium tracking-wide transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}
+                  >
+                    <span className="relative z-10 py-2">{item.name}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active-pill"
+                        className="absolute inset-0 rounded-full bg-primary/10"
+                        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              )
+            })}
           </div>
 
           {/* Mobile menu button */}
