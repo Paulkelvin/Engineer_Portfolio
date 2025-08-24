@@ -111,7 +111,7 @@ const ContactPage = () => {
           className="relative z-10 text-center text-white"
         >
           <h1 className="hero-heading mb-3 md:mb-4 heading-accent">Connect with <span className="gradient-text">Ayodele</span></h1>
-          <p className="hero-sub text-gray-200 max-w-3xl mx-auto px-2 paragraph-lead">
+          <p className="hero-sub max-w-3xl mx-auto px-2 text-white leading-relaxed md:leading-snug">
             Ready to advance your next infrastructure or development initiative—let’s align objectives and unlock value.
           </p>
         </motion.div>

@@ -68,17 +68,17 @@ const AboutPage = () => {
     {
       title: 'Sustainable Technology',
       description: 'Exploring cutting-edge green building materials and renewable energy integration',
-      image: '/images/interests/sustainable-tech.gif',
+      icon: Leaf,
     },
     {
       title: 'Smart Cities',
       description: 'Developing intelligent infrastructure systems for future urban environments',
-      image: '/images/interests/smart-cities.gif',
+      icon: Globe,
     },
     {
       title: 'Innovation in Construction',
       description: 'Advancing construction methodologies through automation and AI integration',
-      image: '/images/interests/construction-innovation.gif',
+      icon: Zap,
     },
   ]
 
@@ -305,39 +305,32 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="flex items-center justify-center gap-3 text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
-              <span className="inline-flex p-2 rounded-lg bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>
-              Areas of Interest
-            </h2>
-            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
+            <h2 className="hero-heading mb-3 md:mb-5 text-gray-800 text-center heading-accent">Areas of <span className="gradient-text">Interest</span></h2>
+            <p className="paragraph-lead max-w-2xl mx-auto text-center">
               Emerging technologies and innovations shaping resilient, low-impact infrastructure.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {interests.map((interest, index) => (
-              <motion.div
-                key={interest.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <div className="relative mb-4">
-                  <Image
-                    src={interest.image}
-                    alt={`${interest.title} interest area`}
-                    width={160}
-                    height={160}
-                    className="rounded-xl shadow-lg mx-auto w-40 h-40 object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">{interest.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{interest.description}</p>
-              </motion.div>
-            ))}
+            {interests.map((interest, index) => {
+              const IconComponent = interest.icon
+              return (
+                <motion.div
+                  key={interest.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="text-center bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 ring-1 ring-gray-100"
+                >
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
+                    <IconComponent className="h-10 w-10 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3 heading-accent">{interest.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">{interest.description}</p>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>

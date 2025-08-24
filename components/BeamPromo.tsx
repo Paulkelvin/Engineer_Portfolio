@@ -18,6 +18,15 @@ const BeamPromo = () => {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  // Detect mobile viewport
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const check = () => setIsMobile(window.innerWidth < 520)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const exitArmedRef = useRef(false)
 
@@ -113,8 +122,8 @@ const BeamPromo = () => {
             initial={{ opacity: 0, y: 24, scale: 0.9, filter: 'blur(6px)' }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
             exit={{ opacity: 0, y: 12, scale: 0.92, filter: 'blur(4px)' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 28, mass: 0.7 }}
-            className="relative group rounded-xl shadow-xl bg-white/95 backdrop-blur border border-blue-100 p-5 pr-7 text-sm leading-relaxed ring-1 ring-blue-200/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 pointer-events-auto"
+            transition={{ type: 'spring', stiffness: 320, damping: 30, mass: 0.65 }}
+            className={`relative group rounded-2xl shadow-xl bg-white/95 backdrop-blur border border-blue-100 ring-1 ring-blue-200/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 pointer-events-auto ${isMobile ? 'p-4 pr-5 text-[13px] leading-snug w-[92vw] max-w-[320px] right-2' : 'p-5 pr-7 text-sm leading-relaxed'}`}
             style={{ boxShadow: '0 8px 28px -4px rgba(0,123,255,0.25), 0 2px 6px -1px rgba(0,0,0,0.1)' }}
           >
             <button
@@ -124,25 +133,51 @@ const BeamPromo = () => {
             >
               <X className="h-4 w-4" />
             </button>
-            <h4 className="font-semibold mb-2 text-gray-800 text-base">Ready to test your beam designs?</h4>
-            <p className="text-gray-600 mb-4">Try our <span className="font-semibold text-primary">Free Beam Calculator</span> now!</p>
-            <div className="flex flex-col xs:flex-row gap-2">
-              <Link
-                href="/services/beam-calculator"
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium text-sm shadow hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
-                aria-label="Go to Beam Calculator"
-                onClick={close}
-              >
-                Yes, Try It
-              </Link>
-              <button
-                onClick={handleNoThanks}
-                className="text-xs text-gray-500 hover:text-gray-700 underline decoration-dotted focus:outline-none"
-                aria-label="Dismiss promotion"
-              >
-                No, Thanks
-              </button>
-            </div>
+            {isMobile ? (
+              <>
+                <h4 className="font-semibold mb-1 text-gray-800 text-sm">Beam Calculator</h4>
+                <p className="text-gray-600 mb-3">Run quick beam checks now.</p>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/services/beam-calculator"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-primary text-white font-medium text-xs shadow hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
+                    aria-label="Go to Beam Calculator"
+                    onClick={close}
+                  >
+                    Try It
+                  </Link>
+                  <button
+                    onClick={handleNoThanks}
+                    className="text-[10px] text-gray-500 hover:text-gray-700 underline decoration-dotted focus:outline-none"
+                    aria-label="Dismiss promotion"
+                  >
+                    Later
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h4 className="font-semibold mb-2 text-gray-800 text-base">Ready to test your beam designs?</h4>
+                <p className="text-gray-600 mb-4">Try our <span className="font-semibold text-primary">Free Beam Calculator</span> now!</p>
+                <div className="flex flex-col xs:flex-row gap-2">
+                  <Link
+                    href="/services/beam-calculator"
+                    className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium text-sm shadow hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
+                    aria-label="Go to Beam Calculator"
+                    onClick={close}
+                  >
+                    Yes, Try It
+                  </Link>
+                  <button
+                    onClick={handleNoThanks}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline decoration-dotted focus:outline-none"
+                    aria-label="Dismiss promotion"
+                  >
+                    No, Thanks
+                  </button>
+                </div>
+              </>
+            )}
           </motion.div>
         )}
         {showInfo && (
