@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Download, Ruler, Zap, Wrench, ChevronDown, Calculator, ExternalLink } from 'lucide-react'
+import { Download, Ruler, Zap, Wrench, ChevronDown, Calculator, ExternalLink, ArrowRight } from 'lucide-react'
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
@@ -137,6 +137,7 @@ export default function BeamCalculatorPage() {
   const [results, setResults] = useState<Results | null>(() => computeResults(defaultInputs))
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1) // 1: Span, 2: Section, 3: Loading, 4: Results
+  const prevStepRef = useRef(step)
   const chartRef = useRef<HTMLCanvasElement | null>(null)
   const chartRefMoment = useRef<HTMLCanvasElement | null>(null)
   const chartRefDeflect = useRef<HTMLCanvasElement | null>(null)
@@ -193,8 +194,25 @@ export default function BeamCalculatorPage() {
     return true
   }
 
-  const goNext = () => setStep(s => Math.min(4, s + (isStepValid(s) ? 1 : 0)))
+  const goNext = () => setStep(s => {
+    if (!isStepValid(s)) return s
+    return Math.min(4, s + 1)
+  })
   const goPrev = () => setStep(s => Math.max(1, s - 1))
+
+  // Track previous step for splash animation
+  useEffect(() => { prevStepRef.current = step }, [step])
+
+  // Force chart re-init when entering step 4 (ensures images/charts render)
+  useEffect(() => {
+    if (step === 4) {
+      // defer to next frame so DOM ready
+      requestAnimationFrame(() => {
+        const r = computeResults(inputs)
+        setResults(r)
+      })
+    }
+  }, [step, inputs])
 
   const steps = [
     { id: 1, title: 'Span & Support', desc: 'Beam length, units & support conditions' },
@@ -331,13 +349,17 @@ export default function BeamCalculatorPage() {
           {/* Wizard */}
           <motion.form onSubmit={onSubmit} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full lg:w-1/3 bg-white rounded-2xl shadow-xl ring-1 ring-gray-100 p-6 space-y-6 sticky top-24 self-start h-fit">
             {/* Step indicator */}
-            <ol className="flex lg:block items-center justify-between lg:space-y-3 text-xs" aria-label="Beam calculator steps">
+            <ol className="flex lg:block items-center justify-between lg:space-y-3 text-xs relative" aria-label="Beam calculator steps">
               {steps.map(s => {
                 const state = s.id === step ? 'current' : s.id < step ? 'complete' : 'upcoming'
                 return (
                   <li key={s.id} className="flex-1 lg:flex-none">
                     <button type="button" onClick={() => s.id < step && setStep(s.id)} aria-current={s.id===step? 'step':undefined} className={`group flex items-center gap-2 w-full py-2 pr-2 lg:p-0 ${state!=='upcoming'?'cursor-pointer':'cursor-default'}`}> 
-                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ring-2 transition ${state==='current'?'bg-primary text-white ring-primary': state==='complete'?'bg-primary/10 text-primary ring-primary/40':'bg-gray-100 text-gray-500 ring-gray-300'}`}>{s.id}</span>
+                      <span className={`relative flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ring-2 transition ${state==='current'?'bg-primary text-white ring-primary shadow-md': state==='complete'?'bg-gradient-to-br from-primary/10 to-secondary/10 text-primary ring-primary/40':'bg-gray-100 text-gray-500 ring-gray-300'}`}>
+                        {s.id}
+                        {state==='complete' && <span className="absolute inset-0 rounded-full animate-ping-splash bg-primary/30" aria-hidden="true" />}
+                      </span>
+                      {s.id < 4 && <ArrowRight className="hidden lg:block h-4 w-4 text-gray-300 group-hover:text-primary transition" />}
                       <span className="hidden lg:flex flex-col text-left">
                         <span className={`font-medium tracking-tight ${state==='current'?'text-gray-800':'text-gray-600'}`}>{s.title}</span>
                         <span className="text-[10px] text-gray-500 font-normal leading-tight">{s.desc}</span>
@@ -347,6 +369,14 @@ export default function BeamCalculatorPage() {
                 )
               })}
             </ol>
+            {step === 4 && (
+              <div className="lg:hidden text-[11px] font-medium text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2 -mt-1">All steps complete. Scroll to view graphs & export analysis below.</div>
+            )}
+            {step < 4 && (
+              <div className="lg:hidden text-[11px] font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 -mt-1">
+                Complete steps 1–3 to view calculated results. Current step: <span className="text-primary">{steps.find(s=>s.id===step)?.title}</span>
+              </div>
+            )}
 
             <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent lg:hidden" />
 
@@ -453,6 +483,10 @@ export default function BeamCalculatorPage() {
               {step > 1 && <button type="button" onClick={goPrev} className="flex-1 px-4 py-2 rounded-md bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition">Back</button>}
               {step < 4 && <button type="button" onClick={goNext} disabled={!isStepValid(step)} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow transition">Next</button>}
             </div>
+            <style jsx>{`
+              @keyframes splash { 0% { transform: scale(.4); opacity:.9;} 60% { transform: scale(1.4); opacity:0;} 100% { opacity:0; transform: scale(1.6);} }
+              .animate-ping-splash { animation: splash .9s ease-out forwards; }
+            `}</style>
           </motion.form>
 
           {/* Results & Charts */}

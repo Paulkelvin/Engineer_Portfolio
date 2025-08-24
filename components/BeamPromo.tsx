@@ -23,23 +23,23 @@ const BeamPromo = () => {
     if (visits >= 2) return // do not show again
     localStorage.setItem(key, String(visits + 1))
 
-    // Random timer trigger 15-30s
-    const delay = 15000 + Math.random() * 15000
+  // Random timer trigger 10-20s (shorter per request)
+  const delay = 10000 + Math.random() * 10000
     timerRef.current = setTimeout(() => setVisible(true), delay)
 
-    // Scroll trigger 30-50%
+    // Scroll trigger 25-40% (slightly earlier)
     const onScroll = () => {
       if (visible || dismissed) return
       const scrollProgress = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight
-      if (scrollProgress >= (0.3 + Math.random() * 0.2)) {
+      if (scrollProgress >= (0.25 + Math.random() * 0.15)) {
         setVisible(true)
         window.removeEventListener('scroll', onScroll)
       }
     }
     window.addEventListener('scroll', onScroll)
 
-    // Exit intent after 10s
-    const armExitTimer = setTimeout(() => { exitArmedRef.current = true }, 10000)
+  // Exit intent after 6s (earlier)
+  const armExitTimer = setTimeout(() => { exitArmedRef.current = true }, 6000)
     const onMouseLeave = (e: MouseEvent) => {
       if (!exitArmedRef.current || visible || dismissed) return
       if (e.clientY <= 0) { setVisible(true) }
