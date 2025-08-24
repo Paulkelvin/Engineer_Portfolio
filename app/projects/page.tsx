@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
-import { X, ChevronLeft, ChevronRight, ExternalLink, Download, Play, MapPin, Calendar, DollarSign, Users, Award, Building2, Leaf } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ExternalLink, Download, Play, MapPin, Calendar, Users, Award, Building2, Leaf } from 'lucide-react'
 import { useRef, useEffect } from 'react'
 
 const ProjectsPage = () => {
@@ -490,9 +490,9 @@ const ProjectsPage = () => {
                           <MapPin className="h-4 w-4" />
                           <span>{project.location}</span>
                         </div>
-                        <div className="flex items-center space-x-2 text-gray-600">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{project.budget}</span>
+                        <div className="flex items-center space-x-1 text-gray-600">
+                          <span className="inline-block px-1 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-semibold leading-none">₦</span>
+                          <span>{project.budget.replace(/^₦/, '')}</span>
                         </div>
                       </div>
                       
@@ -556,8 +556,9 @@ const ProjectsPage = () => {
                         
                         <div className="grid grid-cols-2 gap-4 mb-6">
                           <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="text-2xl font-bold text-primary">
-                              {projects.find(p => p.id === selectedProject)?.budget}
+                            <div className="text-2xl font-bold text-primary flex items-baseline gap-1">
+                              <span className="text-base font-semibold tracking-tight">₦</span>
+                              <span>{projects.find(p => p.id === selectedProject)?.budget.replace(/^₦/, '')}</span>
                             </div>
                             <div className="text-sm text-gray-600">Budget</div>
                           </div>
