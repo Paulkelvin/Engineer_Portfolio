@@ -639,10 +639,10 @@ export default function BeamCalculatorPage() {
             <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent lg:hidden" />
 
             {/* Step content with animated transitions */}
-            <div className="relative min-h-[300px]">
+            <div className="relative">
               <AnimatePresence mode="wait">
                 {step === 1 && (
-                  <motion.div key="step1" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
+                  <motion.div key="step1" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Ruler className="h-5 w-5 text-primary" /> Span & Support</h2>
                   <button type="button" onClick={toggleUnits} className="text-xs px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition">{inputs.unitSystem === 'metric' ? 'Use Imperial' : 'Use Metric'}</button>
@@ -662,7 +662,7 @@ export default function BeamCalculatorPage() {
                   </motion.div>
                 )}
                 {step === 2 && (
-                  <motion.div key="step2" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
+                  <motion.div key="step2" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Wrench className="h-5 w-5 text-primary" /> Section & Material</h2>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Material</label>
@@ -694,7 +694,7 @@ export default function BeamCalculatorPage() {
                   </motion.div>
                 )}
                 {step === 3 && (
-                  <motion.div key="step3" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0 pb-8">
+                  <motion.div key="step3" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 pb-8">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Zap className="h-5 w-5 text-primary" /> Loading</h2>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Load Type</label>
@@ -735,7 +735,7 @@ export default function BeamCalculatorPage() {
                   </motion.div>
                 )}
                 {step === 4 && (
-                  <motion.div key="step4" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.4, ease:'easeOut'}} className="space-y-5 absolute inset-0 pb-10">
+                  <motion.div key="step4" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.4, ease:'easeOut'}} className="space-y-5 pb-10">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Calculator className="h-5 w-5 text-primary" /> Results & Export</h2>
                 <button type="button" onClick={()=> setStep(1)} className="text-[11px] font-medium text-primary underline decoration-dotted self-start -mt-2">← Adjust Inputs</button>
                 <div className="text-xs grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-50">
