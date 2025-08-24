@@ -219,7 +219,8 @@ const ServicesPage = () => {
       {/* Services Grid */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <AccentShape variant="triangles" size={110} className="text-primary/50 absolute -mt-24 left-6 opacity-30 hidden md:block" />
+          <AccentShape variant="triangles" size={90} className="text-primary/50 absolute -mt-20 left-4 opacity-30" />
+          <AccentShape variant="orbits" size={120} className="text-secondary/50 absolute -mt-10 right-2 opacity-15" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

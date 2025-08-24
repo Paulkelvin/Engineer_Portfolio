@@ -116,7 +116,7 @@ const HomePage = () => {
       {/* Stats Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <AccentShape variant="rings" size={120} className="text-primary absolute opacity-30 -mt-24 -ml-10 hidden md:block" />
+          <AccentShape variant="rings" size={100} className="text-primary absolute opacity-25 -mt-20 -ml-6" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -162,7 +162,7 @@ const HomePage = () => {
       {/* Quick Bio Section */}
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
-          <AccentShape variant="grid-dots" size={96} className="text-secondary/70 absolute -mt-20 right-4 opacity-30 hidden md:block" />
+          <AccentShape variant="orbits" size={120} className="text-secondary/60 absolute -mt-16 right-2 opacity-20" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}

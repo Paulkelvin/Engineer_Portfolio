@@ -120,7 +120,8 @@ const ContactPage = () => {
       {/* Contact Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <AccentShape variant="grid-dots" size={90} className="text-primary/50 absolute -mt-20 left-0 opacity-25 hidden md:block" />
+          <AccentShape variant="grid-dots" size={70} className="text-primary/40 absolute -mt-16 left-0 opacity-30" />
+          <AccentShape variant="orbits" size={110} className="text-secondary/50 absolute top-24 -right-6 opacity-15" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <motion.div

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
 import { ChevronDown, ChevronUp, Download, Mail, Phone, MapPin, Linkedin, Github, Award, GraduationCap, Briefcase, Building2, Leaf, Zap, Shield } from 'lucide-react'
+import AccentShape from '@/components/decor/AccentShape'
 
 const ResumePage = () => {
   const [expandedExperience, setExpandedExperience] = useState<number | null>(null)
@@ -201,7 +202,9 @@ const ResumePage = () => {
       </section>
 
       {/* Resume Content */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white relative">
+        <AccentShape variant="rings" size={120} className="text-primary/40 absolute -top-10 left-2 opacity-20" />
+        <AccentShape variant="orbits" size={140} className="text-secondary/40 absolute top-1/2 -right-8 opacity-15" />
         <div className="container-custom">
           <div className="max-w-6xl mx-auto">
             {/* Header Section */}
@@ -249,15 +252,15 @@ const ResumePage = () => {
                 </div>
               </div>
             </motion.div>
-
             {/* Experience Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="mb-12"
+              className="mb-12 relative"
             >
+              <AccentShape variant="grid-dots" size={80} className="text-primary/40 absolute -top-6 -left-4 opacity-25" />
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                 <Briefcase className="h-6 w-6 text-primary mr-3" />
                 Professional Experience
@@ -344,6 +347,7 @@ const ResumePage = () => {
               viewport={{ once: true }}
               className="mb-12"
             >
+              <AccentShape variant="triangles" size={90} className="text-secondary/50 absolute -top-6 right-2 opacity-25" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Education */}
                 <div>
@@ -422,6 +426,7 @@ const ResumePage = () => {
               viewport={{ once: true }}
               className="mb-12"
             >
+              <AccentShape variant="orbits" size={110} className="text-primary/30 absolute -top-8 left-1/2 -translate-x-1/2 opacity-25" />
               <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Technical Skills & Expertise</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {skills.map((skill, index) => {
@@ -470,6 +475,7 @@ const ResumePage = () => {
               viewport={{ once: true }}
               className="mb-12"
             >
+              <AccentShape variant="rings" size={100} className="text-secondary/40 absolute -top-10 left-4 opacity-25" />
               <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Awards & Recognition</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

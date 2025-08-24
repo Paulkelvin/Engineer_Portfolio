@@ -112,7 +112,8 @@ const AboutPage = () => {
       {/* Bio Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <AccentShape variant="rings" size={140} className="text-primary/40 absolute -mt-28 right-8 opacity-25 hidden md:block" />
+          <AccentShape variant="rings" size={110} className="text-primary/40 absolute -mt-24 right-4 opacity-25" />
+          <AccentShape variant="orbits" size={130} className="text-secondary/40 absolute mt-8 -left-6 opacity-15" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

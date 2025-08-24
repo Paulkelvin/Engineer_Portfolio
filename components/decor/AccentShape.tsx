@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import React from 'react'
 
 interface AccentShapeProps {
-  variant?: 'grid-dots' | 'triangles' | 'rings';
+  variant?: 'grid-dots' | 'triangles' | 'rings' | 'orbits';
   className?: string;
   animate?: boolean;
   size?: number;
@@ -54,6 +54,20 @@ const AccentShape: React.FC<AccentShapeProps> = ({
             <circle cx="32" cy="32" r="14" opacity="0.22" />
             <circle cx="32" cy="32" r="22" opacity="0.15" />
             <circle cx="32" cy="32" r="30" opacity="0.08" />
+          </g>
+        </motion.svg>
+      )
+    case 'orbits':
+      return (
+        <motion.svg {...common} viewBox="0 0 80 80" {...floatAnim}>
+          <g stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round">
+            <circle cx="40" cy="40" r="8" opacity="0.35" />
+            <circle cx="40" cy="40" r="18" opacity="0.28" />
+            <circle cx="40" cy="40" r="28" opacity="0.20" />
+            <circle cx="40" cy="40" r="38" opacity="0.14" />
+            <circle cx="40" cy="40" r="48" opacity="0.08" />
+            <path d="M4 40c8-6 16-9 24-9 8 0 16 3 24 9 8 6 16 9 24 9" opacity="0.15" />
+            <path d="M8 30c10-5 20-7 32-7s22 2 32 7" opacity="0.10" />
           </g>
         </motion.svg>
       )
