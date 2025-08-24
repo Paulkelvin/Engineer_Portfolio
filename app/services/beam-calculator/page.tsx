@@ -569,7 +569,7 @@ export default function BeamCalculatorPage() {
         <Image src={beamHero} alt="Beam calculator hero" fill className="object-cover" priority placeholder="blur" />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="hero-heading mb-4 leading-tight heading-accent"><span className="gradient-text">Beam</span> Deflection & Load Calculator</h1>
+          <h1 className="hero-heading mb-4 leading-tight heading-accent"><span className="gradient-text">Beam</span> <span className="text-white">Deflection & Load Calculator</span></h1>
           <p className="max-w-2xl text-sm md:text-lg text-gray-200 leading-relaxed">Quickly analyze beam performance with inputs for load, material, and supports. Get deflection, shear, moment, and safety factor results with visual diagrams.</p>
         </motion.div>
       </div>
@@ -621,7 +621,9 @@ export default function BeamCalculatorPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button type="button" onClick={copyShareLink} className="flex-1 text-[11px] px-2 py-1.5 rounded bg-gradient-to-r from-secondary/20 to-primary/20 text-gray-700 font-medium hover:from-secondary/30 hover:to-primary/30 whitespace-nowrap">{shareCopied? 'Copied!' : 'Share Link'}</button>
+                {step < 4 && (
+                  <button type="button" onClick={copyShareLink} className="flex-1 text-[11px] px-2 py-1.5 rounded bg-gradient-to-r from-secondary/20 to-primary/20 text-gray-700 font-medium hover:from-secondary/30 hover:to-primary/30 whitespace-nowrap">{shareCopied? 'Copied!' : 'Share Link'}</button>
+                )}
                 <button type="button" onClick={()=> { setInputs(defaultInputs); ariaAnnounce('Inputs reset')}} className="px-2 py-1.5 rounded bg-gray-100 text-gray-600 text-[11px] hover:bg-gray-200">Reset</button>
               </div>
             </div>
@@ -733,8 +735,9 @@ export default function BeamCalculatorPage() {
                   </motion.div>
                 )}
                 {step === 4 && (
-                  <motion.div key="step4" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.4, ease:'easeOut'}} className="space-y-5 absolute inset-0">
+                  <motion.div key="step4" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.4, ease:'easeOut'}} className="space-y-5 absolute inset-0 pb-10">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Calculator className="h-5 w-5 text-primary" /> Results & Export</h2>
+                <button type="button" onClick={()=> setStep(1)} className="text-[11px] font-medium text-primary underline decoration-dotted self-start -mt-2">← Adjust Inputs</button>
                 <div className="text-xs grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-50">
                   <div><span className="font-medium text-gray-700">L:</span> {inputs.length.toFixed(2)} {unit}</div>
                   <div><span className="font-medium text-gray-700">Support:</span> {inputs.support}</div>
@@ -755,17 +758,19 @@ export default function BeamCalculatorPage() {
                 <button type="button" onClick={copyShareLink} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary/10 text-secondary-800 font-medium tracking-wide hover:bg-secondary/20 transition whitespace-nowrap">
                   <ExternalLink className="h-4 w-4" /> {shareCopied? 'Copied!' : 'Share Link'}
                 </button>
-                <a href="/contact" className="block text-center text-sm text-primary hover:text-blue-700 font-medium transition">Contact for Custom Analysis →</a>
+                <a href="/contact" className="w-full inline-flex items-center justify-center px-4 py-3 rounded-lg border border-primary/30 text-primary font-medium tracking-wide hover:bg-primary/10 transition text-sm">Contact for Custom Analysis →</a>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Navigation buttons */}
-            <div className="pt-2 flex gap-3">
-              {step > 1 && <button type="button" onClick={goPrev} className="flex-1 px-4 py-2 rounded-md bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition">Back</button>}
-              {step < 4 && <button type="button" onClick={goNext} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:shadow transition">Next</button>}
-            </div>
+            {/* Navigation buttons (hidden on results to avoid overlap with share) */}
+            {step < 4 && (
+              <div className="pt-2 flex gap-3">
+                {step > 1 && <button type="button" onClick={goPrev} className="flex-1 px-4 py-2 rounded-md bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition">Back</button>}
+                {step < 4 && <button type="button" onClick={goNext} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:shadow transition">Next</button>}
+              </div>
+            )}
             {stepErrors.length>0 && (
               <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[11px] space-y-1" aria-live="assertive">
                 {stepErrors.map(err => <p key={err}>• {err}</p>)}

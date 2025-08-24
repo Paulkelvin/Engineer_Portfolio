@@ -33,6 +33,7 @@ const BeamPromo = () => {
   // Show gating & triggers
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (window.location.pathname.includes('/services/beam-calculator')) return // never trigger on calculator page
     const legacyKey = 'beamPromoVisits'
     const showsKey = 'beamPromoShows'
     const search = window.location.search
@@ -97,6 +98,18 @@ const BeamPromo = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Auto-dismiss smoothly if we navigate into beam calculator while visible
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const interval = setInterval(() => {
+      if (visible && window.location.pathname.includes('/services/beam-calculator')) {
+        setVisible(false)
+        setDismissed(true)
+      }
+    }, 600)
+    return () => clearInterval(interval)
+  }, [visible])
 
   const close = useCallback(() => {
     setVisible(false)
