@@ -210,7 +210,7 @@ const ServicesPage = () => {
           className="relative z-10 text-center text-white"
         >
           <h1 className="hero-heading mb-3 md:mb-4 heading-accent">Comprehensive <span className="gradient-text">Civil Engineering</span> Services</h1>
-          <p className="hero-sub text-gray-200 max-w-3xl mx-auto paragraph-lead">
+          <p className="hero-sub max-w-3xl mx-auto text-white leading-relaxed md:leading-snug">
             End‑to‑end delivery—planning, design, optimization and oversight—driven by sustainability and measurable project value.
           </p>
         </motion.div>

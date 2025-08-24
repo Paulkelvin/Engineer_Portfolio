@@ -339,7 +339,7 @@ export default function BeamCalculatorPage() {
         <Image src="https://source.unsplash.com/random/1920x500/?beam-engineering" alt="Beam engineering" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">Beam Deflection & Load Calculator</h1>
+          <h1 className="hero-heading mb-4 leading-tight heading-accent"><span className="gradient-text">Beam</span> Deflection & Load Calculator</h1>
           <p className="max-w-2xl text-sm md:text-lg text-gray-200 leading-relaxed">Quickly analyze beam performance with inputs for load, material, and supports. Get deflection, shear, moment, and safety factor results with visual diagrams.</p>
         </motion.div>
       </div>

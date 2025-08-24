@@ -363,7 +363,7 @@ const ProjectsPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="hero-heading mb-3 md:mb-4">My Project Portfolio</h1>
+          <h1 className="hero-heading mb-3 md:mb-4 heading-accent">My <span className="gradient-text">Project</span> Portfolio</h1>
           <p className="hero-sub text-gray-200 max-w-3xl mx-auto">
             Showcasing innovative engineering solutions that transform communities and build sustainable futures
           </p>
