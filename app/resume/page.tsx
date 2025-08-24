@@ -11,124 +11,122 @@ const ResumePage = () => {
   const experience = [
     {
       id: 1,
-      title: 'Principal Engineer & Founding Partner',
-      company: 'Smith Engineering Group',
+      title: 'Principal Engineer & Managing Partner',
+      company: 'Apex Infrastructure Consults',
       period: '2020 - Present',
-      location: 'New York, NY',
+      location: 'Lagos, Nigeria',
       achievements: [
-        'Led 15+ major infrastructure projects worth $2.5B+',
-        'Reduced project costs by 20% through innovative design solutions',
-        'Achieved 100% client satisfaction rate across all projects',
-        'Mentored 25+ junior engineers and established best practices'
+        'Delivered 25+ transport, energy & water infrastructure projects worth ₦1.2T+',
+        'Achieved average 14% capex savings through value engineering & lifecycle optimization',
+        'Maintained 98% client retention rate across PPP & EPC engagements',
+        'Established digital QA/QC workflows and mentored 30+ junior engineers'
       ],
       metrics: {
-        'Projects Delivered': '15+',
-        'Total Value': '$2.5B+',
-        'Cost Savings': '20%',
-        'Client Satisfaction': '100%'
+        'Projects Delivered': '25+',
+        'Total Value': '₦1.2T+',
+        'Avg Savings': '14%',
+        'Client Retention': '98%'
       }
     },
     {
       id: 2,
       title: 'Senior Structural Engineer',
-      company: 'AECOM',
+      company: 'GeoMatrix Engineering',
       period: '2015 - 2020',
-      location: 'New York, NY',
+      location: 'Abuja, Nigeria',
       achievements: [
-        'Managed structural design for 8 high-rise buildings and 3 major bridges',
-        'Implemented BIM workflows reducing design time by 30%',
-        'Led seismic retrofit projects improving safety ratings by 40%',
-        'Collaborated with international teams on $500M+ projects'
+        'Led structural design for 10 mid/high-rise buildings & 4 bridge rehabilitations',
+        'Implemented BIM CDE reducing coordination clashes by 35%',
+        'Introduced progressive collapse checks improving safety margins by 25%',
+        'Supported delivery of ₦300B+ combined project value'
       ],
       metrics: {
-        'Buildings Designed': '8',
-        'Bridges Designed': '3',
-        'Design Efficiency': '+30%',
-        'Safety Improvement': '40%'
+        'Buildings Designed': '10',
+        'Bridges Rehabilitated': '4',
+        'Coordination Efficiency': '+35%',
+        'Safety Improvement': '+25%'
       }
     },
     {
       id: 3,
       title: 'Project Engineer',
-      company: 'Turner Construction',
+      company: 'Continental Builders Nigeria',
       period: '2012 - 2015',
-      location: 'Boston, MA',
+      location: 'Port Harcourt, Nigeria',
       achievements: [
-        'Oversaw construction of 5 commercial buildings and 2 hospitals',
-        'Managed $150M+ in construction value with zero safety incidents',
-        'Coordinated multi-disciplinary teams of 50+ professionals',
-        'Reduced project delays by 25% through improved scheduling'
+        'Oversaw delivery of 6 commercial facilities and 2 specialized healthcare structures',
+        'Managed ₦120B+ cumulative construction value with zero lost-time incidents',
+        'Coordinated multidisciplinary teams of 60+ professionals',
+        'Reduced schedule overruns by 22% via critical path optimization'
       ],
       metrics: {
-        'Projects Managed': '7',
-        'Construction Value': '$150M+',
-        'Safety Record': '0 Incidents',
-        'Delay Reduction': '25%'
+        'Projects Managed': '8',
+        'Construction Value': '₦120B+',
+        'Safety Record': '0 LTI',
+        'Delay Reduction': '22%'
       }
     },
     {
       id: 4,
       title: 'Design Engineer',
-      company: 'HNTB Corporation',
+      company: 'Westbridge Consulting',
       period: '2010 - 2012',
-      location: 'Chicago, IL',
+      location: 'Enugu, Nigeria',
       achievements: [
-        'Designed structural elements for 3 major highway interchanges',
-        'Developed innovative foundation solutions saving $2M+',
-        'Created standardized design templates improving efficiency by 35%',
-        'Participated in LEED certification process for sustainable projects'
+        'Produced structural packages for 2 interchange upgrades & 3 pedestrian bridges',
+        'Optimized foundation systems saving ₦1.6B+',
+        'Standardized design templates increasing efficiency 30%',
+        'Supported early adoption of green building benchmarks'
       ],
       metrics: {
-        'Interchanges Designed': '3',
-        'Cost Savings': '$2M+',
-        'Efficiency Gain': '35%',
-        'LEED Projects': '5+'
+        'Interchanges': '2',
+        'Cost Savings': '₦1.6B+',
+        'Efficiency Gain': '30%',
+        'Green Projects': '4+'
       }
     }
   ]
 
   const education = [
     {
-      degree: 'Master of Science in Civil Engineering',
-      school: 'Massachusetts Institute of Technology',
+      degree: 'Master of Engineering (Civil)',
+      school: 'University of Lagos (UNILAG)',
       year: '2010',
-      gpa: '3.9/4.0',
-      focus: 'Structural Engineering & Sustainable Design',
+      focus: 'Structural Engineering & Sustainable Systems',
       icon: GraduationCap
     },
     {
-      degree: 'Bachelor of Science in Civil Engineering',
-      school: 'University of Illinois at Urbana-Champaign',
+      degree: 'Bachelor of Engineering (Civil)',
+      school: 'Ahmadu Bello University (ABU Zaria)',
       year: '2008',
-      gpa: '3.8/4.0',
-      focus: 'Structural Analysis & Construction Management',
+      focus: 'Structural Analysis & Project Delivery',
       icon: GraduationCap
     }
   ]
 
   const certifications = [
     {
-      name: 'LEED Accredited Professional (BD+C)',
-      issuer: 'US Green Building Council',
-      year: '2012',
+      name: 'COREN Registered Engineer',
+      issuer: 'Council for the Regulation of Engineering in Nigeria',
+      year: '2013',
       icon: Leaf
     },
     {
-      name: 'Professional Engineer (PE)',
-      issuer: 'New York State',
-      year: '2013',
+      name: 'Nigerian Society of Engineers (NSE) Corporate Member',
+      issuer: 'NSE',
+      year: '2012',
       icon: Building2
     },
     {
-      name: 'Structural Engineer (SE)',
-      issuer: 'Illinois State',
-      year: '2014',
+      name: 'Project Management Professional (PMP)',
+      issuer: 'PMI',
+      year: '2016',
       icon: Shield
     },
     {
-      name: 'Project Management Professional (PMP)',
-      issuer: 'Project Management Institute',
-      year: '2016',
+      name: 'EDGE Expert (Green Building)',
+      issuer: 'IFC',
+      year: '2021',
       icon: Briefcase
     }
   ]
@@ -146,32 +144,32 @@ const ResumePage = () => {
 
   const awards = [
     {
-      title: 'Engineer of the Year',
-      organization: 'American Society of Civil Engineers',
+      title: 'Engineering Excellence Award',
+      organization: 'Nigerian Society of Engineers',
       year: '2022',
-      description: 'Recognized for outstanding contributions to sustainable infrastructure development',
-      image: '/images/projects/placeholder.png'
+      description: 'Recognized for outstanding leadership in sustainable infrastructure delivery',
+      image: '/images/awards/engineering-award.png'
     },
     {
-      title: 'Excellence in Design',
-      organization: 'Structural Engineers Association',
+      title: 'Structural Innovation Award',
+      organization: 'Council of Registered Engineers',
       year: '2021',
-      description: 'Awarded for innovative bridge design incorporating sustainable materials',
-      image: '/images/projects/placeholder.png'
+      description: 'Awarded for innovative long-span bridge and materials optimization',
+      image: '/images/awards/design-award.png'
     },
     {
       title: 'Sustainability Champion',
-      organization: 'Green Building Council',
+      organization: 'Green Building Council Nigeria',
       year: '2020',
-      description: 'Honored for leadership in implementing LEED standards across multiple projects',
-      image: '/images/projects/placeholder.png'
+      description: 'Honored for advancing green building adoption across multiple urban projects',
+      image: '/images/awards/sustainability-award.png'
     },
     {
       title: 'Young Engineer Achievement',
-      organization: 'Engineering News-Record',
+      organization: 'National Engineering Forum',
       year: '2019',
-      description: 'Recognized as one of the top 20 young engineers under 35',
-      image: '/images/projects/placeholder.png'
+      description: 'Recognized among top emerging engineers under 35 for innovation impact',
+      image: '/images/awards/achievement-award.png'
     }
   ]
 
@@ -371,7 +369,7 @@ const ResumePage = () => {
                             <div className="flex-1">
                               <h4 className="font-semibold text-gray-800">{edu.degree}</h4>
                               <div className="text-primary font-medium">{edu.school}</div>
-                              <div className="text-gray-600 text-sm">{edu.year} • GPA: {edu.gpa}</div>
+                              <div className="text-gray-600 text-sm">{edu.year}</div>
                               <div className="text-gray-500 text-sm">{edu.focus}</div>
                             </div>
                           </div>
@@ -451,9 +449,9 @@ const ResumePage = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-1 mb-3" aria-label={`Skill level: ${levelLabel}`}>
+                        <div className="flex items-center space-x-1 mb-3" aria-label={`Skill level: Expert`}>
                           {[1,2,3,4,5].map(i => (
-                            <div key={i} className={`h-2.5 flex-1 rounded-full ${i <= (skill.level||1) ? 'bg-gradient-to-r from-primary to-secondary' : 'bg-gray-200'}`} />
+                            <div key={i} className="h-2.5 flex-1 rounded-full bg-gradient-to-r from-primary to-secondary" />
                           ))}
                         </div>
                         <p className="text-xs text-gray-600 line-clamp-2">{skill.examples}</p>

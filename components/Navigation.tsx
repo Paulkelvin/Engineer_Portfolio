@@ -154,7 +154,7 @@ const Navigation = () => {
                         aria-controls="mobile-services-submenu"
                       >
                         <span>{item.name}</span>
-                        <span className={`transition-transform duration-300 text-xs ${mobileServicesOpen ? 'rotate-180' : ''}`}>▾</span>
+                        <span className={`transition-transform duration-300 text-base leading-none translate-y-px ${mobileServicesOpen ? 'rotate-180' : ''}`}>▾</span>
                       </button>
                       {mobileServicesOpen && (
                         <div id="mobile-services-submenu" className="pl-3 pb-2 space-y-1">
