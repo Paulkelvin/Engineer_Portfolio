@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Award, Building2, Users, TrendingUp } from 'lucide-react'
+import GradientGrid from '@/components/decor/GradientGrid'
 
 const HomePage = () => {
   const stats = [
@@ -49,6 +50,7 @@ const HomePage = () => {
             loading="eager"
           />
           <div className="absolute inset-0 bg-black/50" />
+          <GradientGrid className="z-10" />
         </div>
 
         {/* Hero Content */}
@@ -128,7 +130,8 @@ const HomePage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative">
+            <div className="pointer-events-none absolute -inset-2 opacity-40 blur-2xl bg-[radial-gradient(circle_at_40%_30%,rgba(59,130,246,0.15),transparent_60%),radial-gradient(circle_at_70%_60%,rgba(147,51,234,0.15),transparent_60%)]" />
             {stats.map((stat, index) => {
               const IconComponent = stat.icon
               return (
@@ -138,13 +141,14 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="text-center p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-300"
+                  className="relative text-center p-6 bg-white/60 backdrop-blur-sm rounded-xl ring-1 ring-gray-200/60 hover:ring-primary/40 transition-all duration-500 group overflow-hidden"
                 >
-                  <div className={`${stat.color} mb-4 flex justify-center`}>
-                    <IconComponent className="h-12 w-12" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+                  <div className={`${stat.color} mb-4 flex justify-center relative`}> 
+                    <IconComponent className="h-12 w-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3" />
                   </div>
-                  <div className="text-3xl font-bold text-gray-800 mb-2">{stat.number}</div>
-                  <div className="text-gray-600">{stat.label}</div>
+                  <div className="text-3xl font-bold text-gray-800 mb-2 relative">{stat.number}</div>
+                  <div className="text-gray-600 relative tracking-tight">{stat.label}</div>
                 </motion.div>
               )
             })}
