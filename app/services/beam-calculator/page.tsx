@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import beamHero from '../../../beam-hero.png'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Ruler, Zap, Wrench, ChevronDown, Calculator, ExternalLink, ArrowRight } from 'lucide-react'
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js'
@@ -25,20 +26,32 @@ type SupportType = 'Simply Supported' | 'Cantilever' | 'Fixed Both Ends'
 type LoadType = 'Point Load' | 'Uniform Distributed Load'
 
 interface BeamInputs {
-  length: number // meters
+  length: number
   material: MaterialKey
   sectionShape: 'Rectangular' | 'Circular'
-  width: number // m (rect)
-  height: number // m (rect)
-  diameter: number // m (circular)
+  width: number
+  height: number
+  diameter: number
   loadType: LoadType
-  loadValue: number // kN or kN/m
-  loadPosition: number // m from left (for point)
+  loadValue: number
+  loadPosition: number
   support: SupportType
   unitSystem: 'metric' | 'imperial'
-  loadFactor: number // ultimate load multiplier
-  deflectionLimit: number // denominator for L/limit serviceability
+  loadFactor: number
+  deflectionLimit: number
 }
+
+// Compact share encoding helpers (v1)
+const MATERIAL_KEYS: MaterialKey[] = ['Steel','Concrete','Wood']
+const SUPPORT_KEYS: SupportType[] = ['Simply Supported','Cantilever','Fixed Both Ends']
+const LOADTYPE_KEYS: LoadType[] = ['Point Load','Uniform Distributed Load']
+const SHAPE_KEYS: BeamInputs['sectionShape'][] = ['Rectangular','Circular']
+const UNIT_KEYS: BeamInputs['unitSystem'][] = ['metric','imperial']
+function encodeInputsCompact(i: BeamInputs): string {
+  const arr = [ +i.length.toFixed(4), MATERIAL_KEYS.indexOf(i.material), SHAPE_KEYS.indexOf(i.sectionShape), +i.width.toFixed(4), +i.height.toFixed(4), +i.diameter.toFixed(4), LOADTYPE_KEYS.indexOf(i.loadType), +i.loadValue.toFixed(3), +i.loadPosition.toFixed(4), SUPPORT_KEYS.indexOf(i.support), UNIT_KEYS.indexOf(i.unitSystem), +i.loadFactor.toFixed(3), Math.round(i.deflectionLimit) ]
+  return 'v1.' + btoa(JSON.stringify(arr)).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_')
+}
+function decodeInputsCompact(token: string): Partial<BeamInputs> | null { if (!token.startsWith('v1.')) return null; try { const raw = token.slice(3).replace(/-/g,'+').replace(/_/g,'/'); const pad=(4-(raw.length%4))%4; const arr = JSON.parse(atob(raw+'='.repeat(pad))); if(!Array.isArray(arr)||arr.length<13) return null; return { length:arr[0], material:MATERIAL_KEYS[arr[1]]||'Steel', sectionShape:SHAPE_KEYS[arr[2]]||'Rectangular', width:arr[3], height:arr[4], diameter:arr[5], loadType:LOADTYPE_KEYS[arr[6]]||'Point Load', loadValue:arr[7], loadPosition:arr[8], support:SUPPORT_KEYS[arr[9]]||'Simply Supported', unitSystem:UNIT_KEYS[arr[10]]||'metric', loadFactor:arr[11], deflectionLimit:arr[12] }; } catch { return null } }
 
 const defaultInputs: BeamInputs = {
   length: 6,
@@ -193,23 +206,35 @@ export default function BeamCalculatorPage() {
   const ariaMsgRef = useRef<string>('')
   const [, setAriaTick] = useState(0) // force rerender for aria live updates
 
-  // Load from share URL (s param) or last inputs
+  // Load from share URL (?c compact token v1 or legacy ?s) or last inputs
   useEffect(() => {
     try {
+      const c = searchParams?.get('c')
+      if (c) {
+        const decoded = decodeInputsCompact(c)
+        if (decoded) {
+          setInputs(prev => ({ ...prev, ...decoded }))
+          setAutoFromShare(true)
+          setSharedNotice('Shared scenario loaded. Running analysis…')
+          setStep(4)
+          router.replace('/services/beam-calculator')
+          return
+        }
+      }
       const s = searchParams?.get('s')
       if (s) {
         const decoded = JSON.parse(atob(s)) as Partial<BeamInputs>
         setInputs(prev => ({ ...prev, ...decoded }))
         setAutoFromShare(true)
         setSharedNotice('Shared scenario loaded. Running analysis…')
-        setStep(4) // jump directly to results and trigger processing
-        router.replace('/services/beam-calculator') // clean URL
-      } else {
-        const lastRaw = localStorage.getItem('beamCalc:last')
-        if (lastRaw) {
-          const parsed = JSON.parse(lastRaw)
-          setInputs(prev => ({ ...prev, ...parsed }))
-        }
+        setStep(4)
+        router.replace('/services/beam-calculator')
+        return
+      }
+      const lastRaw = localStorage.getItem('beamCalc:last')
+      if (lastRaw) {
+        const parsed = JSON.parse(lastRaw)
+        setInputs(prev => ({ ...prev, ...parsed }))
       }
     } catch { /* ignore decode errors */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,12 +281,11 @@ export default function BeamCalculatorPage() {
     ariaAnnounce(`Scenario ${name} deleted`)
   }
 
-  // Share link builder
+  // Share link builder (compact token only)
   const buildShareLink = () => {
     try {
-      const json = JSON.stringify(inputs)
-      const encoded = btoa(json)
-      return `${window.location.origin}/services/beam-calculator?s=${encodeURIComponent(encoded)}`
+      const token = encodeInputsCompact(inputs)
+      return `${window.location.origin}/services/beam-calculator?c=${token}`
     } catch { return window.location.href }
   }
 
@@ -294,15 +318,16 @@ export default function BeamCalculatorPage() {
     setAriaTick(t=>t+1)
   }
 
-  // Processing animation when entering results step or when recalculating
+  // Processing animation with randomized duration 2–6s (shorter if from shared link)
   useEffect(() => {
     if (step === 4) {
       setProcessing(true)
       setProgress(0)
       const start = performance.now()
+      const total = autoFromShare ? 2000 + Math.random()*1000 : 2000 + Math.random()*4000
       const animate = (t: number) => {
         const elapsed = t - start
-        const pct = Math.min(100, elapsed / 900 * 100)
+        const pct = Math.min(100, (elapsed / total) * 100)
         setProgress(pct)
         if (pct < 100) requestAnimationFrame(animate)
       }
@@ -313,7 +338,7 @@ export default function BeamCalculatorPage() {
         setProcessing(false)
         if (autoFromShare) setSharedNotice('Shared scenario analysis complete.')
         ariaAnnounce('Calculation completed')
-      }, 950)
+      }, total)
       return () => clearTimeout(timer)
     } else {
       setSharedNotice('')
@@ -519,18 +544,20 @@ export default function BeamCalculatorPage() {
     if (!validateStep(3)) { setStep(3); return }
     setProcessing(true)
     setProgress(0)
+    const total = 2000 + Math.random()*4000
     const start = performance.now()
     const animate = (t: number) => {
       const elapsed = t - start
-      const pct = Math.min(100, elapsed / 900 * 100)
+      const pct = Math.min(100, (elapsed / total) * 100)
       setProgress(pct)
       if (pct < 100) requestAnimationFrame(animate)
     }
     requestAnimationFrame(animate)
     setTimeout(() => {
-  setResults(computeResults(inputs))
+      setResults(computeResults(inputs))
       setProcessing(false)
-    }, 950)
+      ariaAnnounce('Recalculation completed')
+    }, total)
   }
 
   const unit = inputs.unitSystem === 'metric' ? 'm' : 'ft'
@@ -539,7 +566,7 @@ export default function BeamCalculatorPage() {
     <div className="min-h-screen bg-white">
       {/* Hero */}
       <div className="relative h-[320px] md:h-[420px] w-full overflow-hidden">
-        <Image src="https://source.unsplash.com/random/1920x500/?beam-engineering" alt="Beam engineering" fill className="object-cover" priority />
+        <Image src={beamHero} alt="Beam calculator hero" fill className="object-cover" priority placeholder="blur" />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="hero-heading mb-4 leading-tight heading-accent"><span className="gradient-text">Beam</span> Deflection & Load Calculator</h1>
@@ -594,7 +621,7 @@ export default function BeamCalculatorPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button type="button" onClick={copyShareLink} className="flex-1 text-[11px] px-2 py-1.5 rounded bg-gradient-to-r from-secondary/20 to-primary/20 text-gray-700 font-medium hover:from-secondary/30 hover:to-primary/30">{shareCopied? 'Link Copied' : 'Copy Share Link'}</button>
+                <button type="button" onClick={copyShareLink} className="flex-1 text-[11px] px-2 py-1.5 rounded bg-gradient-to-r from-secondary/20 to-primary/20 text-gray-700 font-medium hover:from-secondary/30 hover:to-primary/30 whitespace-nowrap">{shareCopied? 'Copied!' : 'Share Link'}</button>
                 <button type="button" onClick={()=> { setInputs(defaultInputs); ariaAnnounce('Inputs reset')}} className="px-2 py-1.5 rounded bg-gray-100 text-gray-600 text-[11px] hover:bg-gray-200">Reset</button>
               </div>
             </div>
@@ -610,7 +637,7 @@ export default function BeamCalculatorPage() {
             <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent lg:hidden" />
 
             {/* Step content with animated transitions */}
-            <div className="relative min-h-[250px]">
+            <div className="relative min-h-[300px]">
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <motion.div key="step1" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
@@ -665,7 +692,7 @@ export default function BeamCalculatorPage() {
                   </motion.div>
                 )}
                 {step === 3 && (
-                  <motion.div key="step3" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0">
+                  <motion.div key="step3" initial={{opacity:0, x:-25}} animate={{opacity:1, x:0}} exit={{opacity:0, x:25}} transition={{duration:0.35, ease:'easeOut'}} className="space-y-4 absolute inset-0 pb-8">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><Zap className="h-5 w-5 text-primary" /> Loading</h2>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Load Type</label>
@@ -725,8 +752,8 @@ export default function BeamCalculatorPage() {
                 <button type="button" onClick={handleExportPDF} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-100 text-gray-700 font-medium tracking-wide hover:bg-gray-200 transition">
                   <Download className="h-4 w-4" /> Export PDF
                 </button>
-                <button type="button" onClick={copyShareLink} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary/10 text-secondary-800 font-medium tracking-wide hover:bg-secondary/20 transition">
-                  <ExternalLink className="h-4 w-4" /> {shareCopied? 'Link Copied' : 'Copy Share Link'}
+                <button type="button" onClick={copyShareLink} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary/10 text-secondary-800 font-medium tracking-wide hover:bg-secondary/20 transition whitespace-nowrap">
+                  <ExternalLink className="h-4 w-4" /> {shareCopied? 'Copied!' : 'Share Link'}
                 </button>
                 <a href="/contact" className="block text-center text-sm text-primary hover:text-blue-700 font-medium transition">Contact for Custom Analysis →</a>
                   </motion.div>
