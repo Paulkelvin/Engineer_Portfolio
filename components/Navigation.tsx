@@ -40,7 +40,10 @@ const Navigation = () => {
   const navItems = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Services', href: '/services' },
+    { name: 'Services', href: '/services', dropdown: [
+      { name: 'Overview', href: '/services' },
+      { name: 'Beam Calculator', href: '/services/beam-calculator' }
+    ]},
     { name: 'Projects', href: '/projects' },
     { name: 'Resume', href: '/resume' },
     { name: 'Contact', href: '/contact' },
@@ -67,20 +70,32 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
               const active = pathname === item.href
+              if (item.dropdown) {
+                const open = false // rely on group hover only
+                return (
+                  <motion.div key={item.name} whileHover={{ y: -2 }} className="px-3 relative group">
+                    <Link href={item.href} className={`relative inline-flex items-center gap-1 text-sm font-medium tracking-wide transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-600 group-hover:text-primary'}`}>
+                      <span className="relative z-10 py-2">{item.name}</span>
+                      <motion.span className="relative z-10 inline-block text-[10px] opacity-60">▾</motion.span>
+                      {active && (
+                        <motion.span layoutId="nav-active-pill" className="absolute inset-0 rounded-full bg-primary/10" transition={{ type: 'spring', stiffness: 300, damping: 24 }} />
+                      )}
+                    </Link>
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition">
+                      <div className="bg-white rounded-xl shadow-lg ring-1 ring-gray-200 w-56 p-3 grid gap-1">
+                        {item.dropdown.map(link => (
+                          <Link key={link.href} href={link.href} className={`px-3 py-2 rounded-md text-sm font-medium transition bg-gradient-to-r from-transparent to-transparent hover:from-primary/5 hover:to-secondary/5 ${pathname===link.href?'text-primary':'text-gray-700 hover:text-primary'}`}>{link.name}</Link>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              }
               return (
                 <motion.div key={item.name} whileHover={{ y: -2 }} className="px-3">
-                  <Link
-                    href={item.href}
-                    className={`relative inline-flex items-center text-sm font-medium tracking-wide transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}
-                  >
+                  <Link href={item.href} className={`relative inline-flex items-center text-sm font-medium tracking-wide transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
                     <span className="relative z-10 py-2">{item.name}</span>
-                    {active && (
-                      <motion.span
-                        layoutId="nav-active-pill"
-                        className="absolute inset-0 rounded-full bg-primary/10"
-                        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                      />
-                    )}
+                    {active && (<motion.span layoutId="nav-active-pill" className="absolute inset-0 rounded-full bg-primary/10" transition={{ type: 'spring', stiffness: 300, damping: 24 }} />)}
                   </Link>
                 </motion.div>
               )
@@ -114,18 +129,22 @@ const Navigation = () => {
             >
               <div className="px-4 py-4 space-y-1">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                      pathname === item.href
-                        ? 'text-primary bg-blue-50'
-                        : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
+                  <div key={item.name}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${pathname === item.href ? 'text-primary bg-blue-50' : 'text-gray-700 hover:text-primary hover:bg-gray-50'}`}
+                    >
+                      {item.name}
+                    </Link>
+                    {item.dropdown && (
+                      <div className="pl-3 pb-2 space-y-1">
+                        {item.dropdown.map(link => (
+                          <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 ${pathname===link.href?'text-primary bg-blue-50':'text-gray-600 hover:text-primary hover:bg-gray-50'}`}>{link.name}</Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </motion.div>

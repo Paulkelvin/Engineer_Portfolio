@@ -234,6 +234,25 @@ const ServicesPage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Beam Calculator Teaser */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0 }}
+              viewport={{ once: true }}
+              className="card group cursor-pointer bg-gradient-to-br from-primary/5 to-secondary/5 flex flex-col justify-between"
+              onClick={() => window.location.href='/services/beam-calculator'}
+            >
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Beam Calculator</h3>
+                  <span className="px-3 py-1 rounded-full bg-primary text-white text-xs font-semibold">New</span>
+                </div>
+                <p className="text-gray-600 mb-6 flex-1">Interactive tool to analyze deflection, shear, and moment for common beam scenarios. Showcase of engineering capability.</p>
+                <div className="mt-auto inline-flex items-center text-primary font-semibold group-hover:text-blue-700 transition-colors">Try It Now →</div>
+              </div>
+              <div className="h-1 w-full bg-gradient-to-r from-primary via-secondary to-primary opacity-60 group-hover:opacity-100 transition" />
+            </motion.div>
             {services.map((service, index) => {
               const IconComponent = service.icon
               return (
