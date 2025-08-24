@@ -9,6 +9,7 @@ import { Menu, X, Building2 } from 'lucide-react'
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const pathname = usePathname()
   const navRef = useRef<HTMLDivElement | null>(null)
 
@@ -128,24 +129,43 @@ const Navigation = () => {
               className="md:hidden bg-white border-t border-gray-200 shadow-sm relative z-50"
             >
               <div className="px-4 py-4 space-y-1">
-                {navItems.map((item) => (
-                  <div key={item.name}>
-                    <Link
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${pathname === item.href ? 'text-primary bg-blue-50' : 'text-gray-700 hover:text-primary hover:bg-gray-50'}`}
-                    >
-                      {item.name}
-                    </Link>
-                    {item.dropdown && (
-                      <div className="pl-3 pb-2 space-y-1">
-                        {item.dropdown.map(link => (
-                          <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 ${pathname===link.href?'text-primary bg-blue-50':'text-gray-600 hover:text-primary hover:bg-gray-50'}`}>{link.name}</Link>
-                        ))}
+                {navItems.map((item) => {
+                  const active = pathname === item.href
+                  if (!item.dropdown) {
+                    return (
+                      <div key={item.name}>
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${active ? 'text-primary bg-blue-50' : 'text-gray-700 hover:text-primary hover:bg-gray-50'}`}
+                        >
+                          {item.name}
+                        </Link>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    )
+                  }
+                  // Services dropdown (collapsible)
+                  return (
+                    <div key={item.name}>
+                      <button
+                        onClick={() => setMobileServicesOpen(o => !o)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${active ? 'text-primary bg-blue-50' : 'text-gray-700 hover:text-primary hover:bg-gray-50'}`}
+                        aria-expanded={mobileServicesOpen}
+                        aria-controls="mobile-services-submenu"
+                      >
+                        <span>{item.name}</span>
+                        <span className={`transition-transform duration-300 text-xs ${mobileServicesOpen ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+                      {mobileServicesOpen && (
+                        <div id="mobile-services-submenu" className="pl-3 pb-2 space-y-1">
+                          {item.dropdown.map(link => (
+                            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 ${pathname===link.href?'text-primary bg-blue-50':'text-gray-600 hover:text-primary hover:bg-gray-50'}`}>{link.name}</Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </motion.div>
           )}

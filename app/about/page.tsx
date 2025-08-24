@@ -120,8 +120,9 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8 leading-tight">
-              My Engineering Journey
+            <div className="heading-badge">Background</div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8 leading-tight heading-accent">
+              My <span className="gradient-text">Engineering Journey</span>
             </h2>
             <div className="text-base md:text-lg text-gray-600 leading-relaxed md:leading-loose space-y-4 md:space-y-6">
               <p>
@@ -155,8 +156,9 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
-              Professional Journey
+            <div className="heading-badge">Timeline</div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight heading-accent">
+              Professional <span className="gradient-text">Journey</span>
             </h2>
             <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
               A timeline of key education, certifications, and milestone projects.
@@ -227,8 +229,9 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
-              Technical Expertise
+            <div className="heading-badge">Skills</div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight heading-accent">
+              Technical <span className="gradient-text">Expertise</span>
             </h2>
             <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
               Combined design, analysis, and delivery capabilities built through complex project execution.

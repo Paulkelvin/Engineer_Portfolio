@@ -124,12 +124,13 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4 leading-snug">
-              Proven Track Record
-            </h2>
-            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
-              Metrics that reflect my commitment to engineering excellence and sustainable impact
-            </p>
+              <div className="heading-badge">Key Metrics</div>
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-4 leading-snug heading-accent">
+                Proven <span className="gradient-text">Track Record</span>
+              </h2>
+              <p className="paragraph-lead max-w-2xl mx-auto">
+                Metrics highlighting <span className="inline-highlight">impact</span>, reliability and a sustained focus on <span className="inline-highlight">sustainable performance</span>.
+              </p>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative">
@@ -170,18 +171,15 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-2xl md:text-4xl font-bold text-gray-800 leading-snug">
-                Meet Your Engineering Partner
+              <div className="heading-badge">Profile</div>
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-800 leading-snug heading-accent">
+                Meet Your <span className="gradient-text">Engineering Partner</span>
               </h2>
-              <p className="text-base md:text-lg text-gray-600 leading-normal">
-                With over 15 years of experience in civil engineering, I've dedicated my career to 
-                creating sustainable, innovative infrastructure solutions. From iconic bridges to 
-                smart city developments, every project reflects my commitment to excellence, 
-                environmental responsibility, and cutting-edge technology.
+              <p className="paragraph-lead">
+                15+ years translating complex civil challenges into resilient, value‑driven outcomes—bridges, transit corridors, energy assets and high‑performance facilities.
               </p>
-              <p className="text-base md:text-lg text-gray-600 leading-normal">
-                My expertise spans structural design, sustainable consulting, and project management, 
-                always with a focus on reducing environmental impact while maximizing efficiency and safety.
+              <p className="paragraph-lead">
+                Focused on structural optimization, sustainable design integration and data‑enabled delivery that elevates safety, lifecycle efficiency and environmental stewardship.
               </p>
               <Link href="/about" className="btn-primary">
                 Learn More About Me
@@ -225,11 +223,12 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8 leading-snug">
-              Featured Projects
+            <div className="heading-badge">Showcase</div>
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-6 leading-snug heading-accent">
+              Featured <span className="gradient-text">Projects</span>
             </h2>
-            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
-              A glimpse into some of my most innovative and impactful engineering solutions
+            <p className="paragraph-lead max-w-2xl mx-auto">
+              A curated selection illustrating <span className="inline-highlight">innovation</span>, sustainability and measurable performance gains.
             </p>
           </motion.div>
 

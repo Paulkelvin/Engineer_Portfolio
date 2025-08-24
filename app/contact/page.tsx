@@ -110,9 +110,9 @@ const ContactPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="hero-heading mb-3 md:mb-4">Connect with Ayodele</h1>
-          <p className="hero-sub text-gray-200 max-w-3xl mx-auto px-2">
-            Ready to discuss your next engineering project? Let's explore how we can bring your vision to life.
+          <h1 className="hero-heading mb-3 md:mb-4 heading-accent">Connect with <span className="gradient-text">Ayodele</span></h1>
+          <p className="hero-sub text-gray-200 max-w-3xl mx-auto px-2 paragraph-lead">
+            Ready to advance your next infrastructure or development initiative—let’s align objectives and unlock value.
           </p>
         </motion.div>
       </section>
@@ -129,7 +129,8 @@ const ContactPage = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold text-gray-800 mb-4 md:mb-6">Get In Touch</h2>
+              <div className="heading-badge">Contact</div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4 md:mb-6 heading-accent">Get <span className="gradient-text">In Touch</span></h2>
               <p className="text-gray-600 mb-8">
                 Fill out the form below and I'll get back to you within 24 hours to discuss your project requirements.
               </p>

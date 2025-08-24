@@ -72,6 +72,15 @@
   .hover-float:hover { transform: translateY(-6px); }
   .fade-in-up { animation: fade-in-up .7s cubic-bezier(.22,.68,0,1); }
   @keyframes fade-in-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Enhanced heading & paragraph accents */
+  .heading-accent { @apply relative inline-block; }
+  .heading-accent:after { content:""; @apply absolute left-0 -bottom-1 h-[3px] w-2/3 rounded-full; background:linear-gradient(90deg,var(--tw-gradient-stops)); @apply from-primary via-secondary to-primary/40; }
+  .heading-badge { @apply inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full bg-gradient-to-r from-primary/15 to-secondary/15 text-primary mb-3; }
+  .paragraph-lead { @apply text-gray-600 md:text-lg leading-relaxed md:leading-loose; }
+  .inline-highlight { @apply relative font-semibold text-gray-800; }
+  .inline-highlight:before { content:""; @apply absolute inset-x-0 -bottom-0.5 h-2 rounded-sm; background:linear-gradient(90deg,theme('colors.primary')/25,theme('colors.secondary')/25); }
+  .gradient-text { @apply bg-gradient-to-r from-primary via-secondary to-primary/70 bg-clip-text text-transparent; }
 }
 
 /* Custom scrollbar */

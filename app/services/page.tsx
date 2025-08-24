@@ -209,9 +209,9 @@ const ServicesPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="hero-heading mb-3 md:mb-4">Comprehensive Civil Engineering Services</h1>
-          <p className="hero-sub text-gray-200 max-w-3xl mx-auto">
-            From concept to completion, delivering innovative solutions that build sustainable futures
+          <h1 className="hero-heading mb-3 md:mb-4 heading-accent">Comprehensive <span className="gradient-text">Civil Engineering</span> Services</h1>
+          <p className="hero-sub text-gray-200 max-w-3xl mx-auto paragraph-lead">
+            End‑to‑end delivery—planning, design, optimization and oversight—driven by sustainability and measurable project value.
           </p>
         </motion.div>
       </section>
@@ -227,11 +227,12 @@ const ServicesPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
-              Our Service Portfolio
+            <div className="heading-badge">Capabilities</div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 heading-accent">
+              Service <span className="gradient-text">Portfolio</span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive engineering solutions tailored to your project needs
+            <p className="paragraph-lead max-w-2xl mx-auto">
+              Adaptive engineering solutions calibrated for performance, resilience and total lifecycle value.
             </p>
           </motion.div>
 
