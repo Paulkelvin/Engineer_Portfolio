@@ -35,6 +35,8 @@ interface BeamInputs {
   loadPosition: number // m from left (for point)
   support: SupportType
   unitSystem: 'metric' | 'imperial'
+  loadFactor: number // ultimate load multiplier
+  deflectionLimit: number // denominator for L/limit serviceability
 }
 
 const defaultInputs: BeamInputs = {
@@ -48,7 +50,9 @@ const defaultInputs: BeamInputs = {
   loadValue: 50,
   loadPosition: 3,
   support: 'Simply Supported',
-  unitSystem: 'metric'
+  unitSystem: 'metric',
+  loadFactor: 1.0,
+  deflectionLimit: 360
 }
 
 function toImperialMeters(m: number) { return m * 3.28084 }
@@ -67,6 +71,10 @@ interface Results {
   shearMax: number
   momentMax: number
   safetyFactor: number
+  deflectionRatio: number // L / delta
+  serviceabilityPass: boolean
+  utilizationFlexure: number
+  utilizationDeflection: number
 }
 
 function computeResults(i: BeamInputs): Results | null {
@@ -75,8 +83,9 @@ function computeResults(i: BeamInputs): Results | null {
   const yieldStress = MATERIALS[i.material].yield
   const I = calcMomentOfInertia(i)
   const L = i.length
-  const P = i.loadValue * 1000 // convert kN to N
-  const w = i.loadValue * 1000 // kN/m to N/m
+  const loadFactor = i.loadFactor || 1
+  const P = i.loadValue * 1000 * (i.loadType==='Point Load'? loadFactor:1) // convert kN to N (factor only for point for simplicity)
+  const w = i.loadValue * 1000 * (i.loadType==='Uniform Distributed Load'? loadFactor:1) // kN/m to N/m
 
   let deflectionMax = 0
   let shearMax = 0
@@ -128,26 +137,48 @@ function computeResults(i: BeamInputs): Results | null {
   }
   const bendingStress = momentMax / Z // Pa
   const safetyFactor = yieldStress / bendingStress
-
-  return { deflectionMax, shearMax, momentMax, safetyFactor }
+  const deflectionRatio = deflectionMax>0 ? L / deflectionMax : Infinity
+  const serviceabilityPass = deflectionMax>0 ? (L/deflectionMax) >= i.deflectionLimit : true
+  // Simple utilization approximations
+  const utilizationFlexure = bendingStress / yieldStress
+  const utilizationDeflection = deflectionMax>0 ? (deflectionMax / (L / i.deflectionLimit)) : 0
+  return { deflectionMax, shearMax, momentMax, safetyFactor, deflectionRatio, serviceabilityPass, utilizationFlexure, utilizationDeflection }
 }
 
 export default function BeamCalculatorPage() {
   const [inputs, setInputs] = useState<BeamInputs>(defaultInputs)
-  const [results, setResults] = useState<Results | null>(() => computeResults(defaultInputs))
+  const [results, setResults] = useState<Results | null>(null)
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1) // 1: Span, 2: Section, 3: Loading, 4: Results
+  const [processing, setProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const prevStepRef = useRef(step)
   const chartRef = useRef<HTMLCanvasElement | null>(null)
   const chartRefMoment = useRef<HTMLCanvasElement | null>(null)
   const chartRefDeflect = useRef<HTMLCanvasElement | null>(null)
   const charts = useRef<Chart[]>([])
 
-  // Update results real-time
+  // Processing animation when entering results step or when recalculating
   useEffect(() => {
-    const r = computeResults(inputs)
-    setResults(r)
-  }, [inputs])
+    if (step === 4) {
+      setProcessing(true)
+      setProgress(0)
+      const start = performance.now()
+      const animate = (t: number) => {
+        const elapsed = t - start
+        const pct = Math.min(100, elapsed / 900 * 100)
+        setProgress(pct)
+        if (pct < 100) requestAnimationFrame(animate)
+      }
+      requestAnimationFrame(animate)
+      const timer = setTimeout(() => {
+        setResults(computeResults(inputs))
+        setProcessing(false)
+      }, 950)
+      return () => clearTimeout(timer)
+    }
+  }, [step, inputs])
 
   const numericHandler = (field: keyof BeamInputs) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value)
@@ -326,8 +357,21 @@ export default function BeamCalculatorPage() {
       if (isStepValid(step)) goNext()
       return
     }
-    setLoading(true)
-    setTimeout(() => setLoading(false), 600)
+    // Recalculate with processing feel
+    setProcessing(true)
+    setProgress(0)
+    const start = performance.now()
+    const animate = (t: number) => {
+      const elapsed = t - start
+      const pct = Math.min(100, elapsed / 900 * 100)
+      setProgress(pct)
+      if (pct < 100) requestAnimationFrame(animate)
+    }
+    requestAnimationFrame(animate)
+    setTimeout(() => {
+      setResults(computeResults(inputs))
+      setProcessing(false)
+    }, 950)
   }
 
   const unit = inputs.unitSystem === 'metric' ? 'm' : 'ft'
@@ -460,6 +504,24 @@ export default function BeamCalculatorPage() {
                     <p className="text-[10px] text-gray-500 mt-1">0 – {inputs.length.toFixed(2)} {unit}</p>
                   </div>
                 )}
+                <div className="pt-2">
+                  <button type="button" onClick={() => setShowAdvanced(a=>!a)} className="text-xs font-medium text-primary hover:text-blue-700 transition underline decoration-dotted">
+                    {showAdvanced ? 'Hide' : 'Show'} Optional Advanced Settings
+                  </button>
+                  {showAdvanced && (
+                    <div className="mt-3 space-y-3 p-3 rounded-md bg-gradient-to-r from-primary/5 to-secondary/5 ring-1 ring-gray-200">
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-700 mb-1">Load Factor (φ)</label>
+                        <input type="number" step="0.05" min={0.5} max={2.5} value={inputs.loadFactor} onChange={numericHandler('loadFactor')} className="w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-xs" />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-700 mb-1">Deflection Limit (L/x)</label>
+                        <input type="number" step="10" min={60} max={1000} value={inputs.deflectionLimit} onChange={numericHandler('deflectionLimit')} className="w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent text-xs" />
+                        <p className="text-[10px] text-gray-500 mt-1">Serviceability check compares actual against L/{inputs.deflectionLimit}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             {step === 4 && (
@@ -472,10 +534,12 @@ export default function BeamCalculatorPage() {
                   <div><span className="font-medium text-gray-700">Section:</span> {inputs.sectionShape}</div>
                   <div><span className="font-medium text-gray-700">Load:</span> {inputs.loadValue} {inputs.loadType==='Point Load'?'kN':'kN/m'}</div>
                   {inputs.loadType==='Point Load' && <div><span className="font-medium text-gray-700">Pos:</span> {inputs.loadPosition} {unit}</div>}
+                  <div><span className="font-medium text-gray-700">φ:</span> {inputs.loadFactor.toFixed(2)}</div>
+                  <div><span className="font-medium text-gray-700">L/Limit:</span> {inputs.deflectionLimit}</div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-white font-medium tracking-wide shadow hover:shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed">
-                  {loading && <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
-                  <span>Recalculate</span>
+                <button type="submit" disabled={processing} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-white font-medium tracking-wide shadow hover:shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed">
+                  {processing && <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                  <span>{processing ? 'Processing...' : 'Recalculate'}</span>
                 </button>
                 <button type="button" onClick={handleExportPDF} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-100 text-gray-700 font-medium tracking-wide hover:bg-gray-200 transition">
                   <Download className="h-4 w-4" /> Export PDF
@@ -504,29 +568,48 @@ export default function BeamCalculatorPage() {
                 Complete steps 1–3 to view calculated results. Current step: <span className="font-semibold text-gray-800">{steps.find(s=>s.id===step)?.title}</span>
               </div>
             )}
-            {step === 4 && (
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
-                <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Deflection</div>
-                <div className="text-lg font-bold text-gray-800">{results ? (results.deflectionMax*1000).toFixed(2) : '--'} mm</div>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
-                <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Shear</div>
-                <div className="text-lg font-bold text-gray-800">{results ? (results.shearMax/1000).toFixed(2) : '--'} kN</div>
-              </div>
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
-                <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Moment</div>
-                <div className="text-lg font-bold text-gray-800">{results ? (results.momentMax/1000).toFixed(2) : '--'} kN·m</div>
-              </div>
-              <div className={`p-4 rounded-xl ${results && results.safetyFactor < 1 ? 'bg-red-100' : 'bg-gradient-to-br from-primary/10 to-secondary/10'}`}>
-                <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Safety Factor</div>
-                <div className={`text-lg font-bold ${results && results.safetyFactor < 1 ? 'text-red-600' : 'text-gray-800'}`}>{results ? results.safetyFactor.toFixed(2) : '--'}</div>
-                {results && results.safetyFactor < 1 && <div className="text-[10px] text-red-600 font-medium mt-1">Increase section / reduce load</div>}
-              </div>
-            </motion.div>
+            {step === 4 && processing && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 rounded-2xl bg-white shadow ring-1 ring-gray-100 flex flex-col items-center gap-4">
+                <div className="relative w-14 h-14">
+                  <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                </div>
+                <div className="text-sm font-medium text-gray-700">Computing structural response…</div>
+                <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-200" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="text-[10px] tracking-wide text-gray-500 uppercase">Shear • Moment • Deflection • Safety</div>
+              </motion.div>
+            )}
+            {step === 4 && !processing && results && (
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+                  <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Deflection</div>
+                  <div className="text-lg font-bold text-gray-800">{(results.deflectionMax*1000).toFixed(2)} mm</div>
+                  <div className="text-[10px] text-gray-600">L/{results.deflectionRatio.toFixed(0)}</div>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+                  <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Shear</div>
+                  <div className="text-lg font-bold text-gray-800">{(results.shearMax/1000).toFixed(2)} kN</div>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+                  <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Max Moment</div>
+                  <div className="text-lg font-bold text-gray-800">{(results.momentMax/1000).toFixed(2)} kN·m</div>
+                </div>
+                <div className={`p-4 rounded-xl ${results.safetyFactor < 1 ? 'bg-red-100' : 'bg-gradient-to-br from-primary/10 to-secondary/10'}`}>
+                  <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Safety Factor</div>
+                  <div className={`text-lg font-bold ${results.safetyFactor < 1 ? 'text-red-600' : 'text-gray-800'}`}>{results.safetyFactor.toFixed(2)}</div>
+                  {results.safetyFactor < 1 && <div className="text-[10px] text-red-600 font-medium mt-1">Increase section / reduce load</div>}
+                </div>
+                <div className={`p-4 rounded-xl ${results.serviceabilityPass ? 'bg-gradient-to-br from-green-100 to-green-50' : 'bg-red-100'}`}>
+                  <div className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Deflection Check</div>
+                  <div className={`text-lg font-bold ${results.serviceabilityPass ? 'text-gray-800' : 'text-red-600'}`}>{results.serviceabilityPass ? 'OK' : 'Fail'}</div>
+                  <div className="text-[10px] text-gray-600">Limit L/{inputs.deflectionLimit}</div>
+                </div>
+              </motion.div>
             )}
 
-            {step === 4 && (
+            {step === 4 && !processing && results && (
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl shadow ring-1 ring-gray-100 p-4">
                 <h3 className="font-semibold mb-2 text-sm">Shear Force Diagram</h3>
@@ -538,7 +621,7 @@ export default function BeamCalculatorPage() {
               </div>
             </motion.div>
             )}
-            {step === 4 && (
+            {step === 4 && !processing && results && (
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="bg-white rounded-xl shadow ring-1 ring-gray-100 p-4">
               <h3 className="font-semibold mb-2 text-sm">Deflection Curve</h3>
               <canvas ref={chartRefDeflect} className="h-56" />
