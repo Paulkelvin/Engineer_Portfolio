@@ -23,8 +23,8 @@ const BeamPromo = () => {
     if (visits >= 2) return // do not show again
     localStorage.setItem(key, String(visits + 1))
 
-  // Random timer trigger 10-20s (shorter per request)
-  const delay = 10000 + Math.random() * 10000
+  // Random timer trigger 12-24s (adjusted)
+  const delay = 12000 + Math.random() * 12000
     timerRef.current = setTimeout(() => setVisible(true), delay)
 
     // Scroll trigger 25-40% (slightly earlier)

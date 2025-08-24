@@ -287,13 +287,13 @@ export default function BeamCalculatorPage() {
       data: { labels: diagramData.xs.map(x => x.toFixed(2)), datasets: [{ label, data, borderColor: color, tension: 0.3, pointRadius: 0 }] },
       options: { responsive: true, animation: { duration: 600 }, plugins: { legend: { display: true } }, scales: { x: { ticks: { maxTicksLimit: 6 } } } }
     })
-
+    if (step !== 4) return
     charts.current.forEach(c => c.destroy())
     charts.current = []
     if (chartRef.current) charts.current.push(createChart(chartRef.current.getContext('2d')!, 'Shear (kN)', diagramData.shear, '#0d6efd'))
     if (chartRefMoment.current) charts.current.push(createChart(chartRefMoment.current.getContext('2d')!, 'Moment (kN·m)', diagramData.moment, '#6610f2'))
     if (chartRefDeflect.current) charts.current.push(createChart(chartRefDeflect.current.getContext('2d')!, 'Deflection (mm)', diagramData.deflect, '#198754'))
-  }, [diagramData])
+  }, [diagramData, step])
 
   const handleExportPDF = async () => {
     const pdf = new jsPDF('p','pt','a4')
@@ -349,15 +349,21 @@ export default function BeamCalculatorPage() {
           {/* Wizard */}
           <motion.form onSubmit={onSubmit} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full lg:w-1/3 bg-white rounded-2xl shadow-xl ring-1 ring-gray-100 p-6 space-y-6 sticky top-24 self-start h-fit">
             {/* Step indicator */}
+            {/* Overall linear progress (mobile/desktop) */}
+            <div className="w-full h-1 rounded-full bg-gray-100 overflow-hidden mb-4 relative">
+              <div className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-500" style={{ width: `${((step-1)/(steps.length-1))*100}%` }} />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_50%,rgba(59,130,246,0.15),transparent_70%)] pointer-events-none" />
+            </div>
             <ol className="flex lg:block items-center justify-between lg:space-y-3 text-xs relative" aria-label="Beam calculator steps">
               {steps.map(s => {
                 const state = s.id === step ? 'current' : s.id < step ? 'complete' : 'upcoming'
                 return (
                   <li key={s.id} className="flex-1 lg:flex-none">
                     <button type="button" onClick={() => s.id < step && setStep(s.id)} aria-current={s.id===step? 'step':undefined} className={`group flex items-center gap-2 w-full py-2 pr-2 lg:p-0 ${state!=='upcoming'?'cursor-pointer':'cursor-default'}`}> 
-                      <span className={`relative flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ring-2 transition ${state==='current'?'bg-primary text-white ring-primary shadow-md': state==='complete'?'bg-gradient-to-br from-primary/10 to-secondary/10 text-primary ring-primary/40':'bg-gray-100 text-gray-500 ring-gray-300'}`}>
-                        {s.id}
-                        {state==='complete' && <span className="absolute inset-0 rounded-full animate-ping-splash bg-primary/30" aria-hidden="true" />}
+                      <span className={`relative flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold ring-2 transition-all duration-300 ${state==='current'?'bg-primary text-white ring-primary shadow-md scale-110': state==='complete'?'bg-gradient-to-br from-primary/10 to-secondary/10 text-primary ring-primary/40':'bg-gray-100 text-gray-500 ring-gray-300'} `}>
+                        <span className="relative z-10">{s.id}</span>
+                        {state==='complete' && <span className="absolute inset-0 rounded-full bg-primary/30 animate-pulse-fast" aria-hidden="true" />}
+                        {state==='complete' && <span className="absolute inset-0 rounded-full border-2 border-primary/40 animate-splash-ring" aria-hidden="true" />}
                       </span>
                       {s.id < 4 && <ArrowRight className="hidden lg:block h-4 w-4 text-gray-300 group-hover:text-primary transition" />}
                       <span className="hidden lg:flex flex-col text-left">
@@ -484,8 +490,10 @@ export default function BeamCalculatorPage() {
               {step < 4 && <button type="button" onClick={goNext} disabled={!isStepValid(step)} className="flex-1 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow transition">Next</button>}
             </div>
             <style jsx>{`
-              @keyframes splash { 0% { transform: scale(.4); opacity:.9;} 60% { transform: scale(1.4); opacity:0;} 100% { opacity:0; transform: scale(1.6);} }
-              .animate-ping-splash { animation: splash .9s ease-out forwards; }
+              @keyframes splashRing { 0% { transform: scale(.3); opacity: .9;} 60% { transform: scale(1.4); opacity:0;} 100% { transform: scale(1.6); opacity:0;} }
+              @keyframes pulseFast { 0%,100% { opacity:.35;} 50% { opacity:.15;} }
+              .animate-splash-ring { animation: splashRing .8s ease-out forwards; }
+              .animate-pulse-fast { animation: pulseFast 1.2s ease-in-out infinite; mix-blend-mode: multiply; }
             `}</style>
           </motion.form>
 
