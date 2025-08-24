@@ -508,8 +508,8 @@ const ProjectsPage = () => {
                             </span>
                           ))}
                         </div>
-                        <button className="text-primary font-semibold hover:text-blue-700 transition-colors duration-200">
-                          View Details →
+                        <button className="text-primary font-semibold hover:text-blue-700 transition-colors duration-200 inline-flex items-center gap-1 whitespace-nowrap text-sm md:text-base">
+                          <span>View Details</span><span aria-hidden="true">→</span>
                         </button>
                       </div>
                     </div>
