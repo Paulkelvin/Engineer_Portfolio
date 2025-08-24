@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, ArrowRight, GraduationCap, Award, Briefcase, Leaf, Zap, Shield, Globe, Building2, Users, Sparkles } from 'lucide-react'
+import AccentShape from '@/components/decor/AccentShape'
 
 const AboutPage = () => {
   const [expandedTimeline, setExpandedTimeline] = useState<number | null>(null)
@@ -111,6 +112,7 @@ const AboutPage = () => {
       {/* Bio Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          <AccentShape variant="rings" size={140} className="text-primary/40 absolute -mt-28 right-8 opacity-25 hidden md:block" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

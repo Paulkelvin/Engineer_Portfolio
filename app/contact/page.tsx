@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
 import { Mail, Phone, MapPin, Linkedin, Github, Send, CheckCircle, Map } from 'lucide-react'
+import AccentShape from '@/components/decor/AccentShape'
 import TestimonialCarousel, { TestimonialItem } from '@/components/TestimonialCarousel'
 
 const ContactPage = () => {
@@ -119,6 +120,7 @@ const ContactPage = () => {
       {/* Contact Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          <AccentShape variant="grid-dots" size={90} className="text-primary/50 absolute -mt-20 left-0 opacity-25 hidden md:block" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <motion.div

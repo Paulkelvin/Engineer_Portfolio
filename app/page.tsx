@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Award, Building2, Users, TrendingUp } from 'lucide-react'
+import AccentShape from '@/components/decor/AccentShape'
 import GradientGrid from '@/components/decor/GradientGrid'
 
 const HomePage = () => {
@@ -115,6 +116,7 @@ const HomePage = () => {
       {/* Stats Section */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          <AccentShape variant="rings" size={120} className="text-primary absolute opacity-30 -mt-24 -ml-10 hidden md:block" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -126,7 +128,7 @@ const HomePage = () => {
               Proven Track Record
             </h2>
             <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
-              Numbers that speak to our commitment to excellence and innovation
+              Metrics that reflect my commitment to engineering excellence and sustainable impact
             </p>
           </motion.div>
 
@@ -141,9 +143,9 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="relative text-center p-6 bg-white/60 backdrop-blur-sm rounded-xl ring-1 ring-gray-200/60 hover:ring-primary/40 transition-all duration-500 group overflow-hidden"
+                  className="relative text-center p-6 bg-white/60 backdrop-blur-sm rounded-xl ring-1 ring-gray-200/60 hover:ring-primary/40 transition-all duration-500 group overflow-hidden sm:before:hidden"
                 >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+                  <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
                   <div className={`${stat.color} mb-4 flex justify-center relative`}> 
                     <IconComponent className="h-12 w-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3" />
                   </div>
@@ -159,6 +161,7 @@ const HomePage = () => {
       {/* Quick Bio Section */}
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
+          <AccentShape variant="grid-dots" size={96} className="text-secondary/70 absolute -mt-20 right-4 opacity-30 hidden md:block" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -226,7 +229,7 @@ const HomePage = () => {
               Featured Projects
             </h2>
             <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-normal">
-              A glimpse into some of our most innovative and impactful engineering solutions
+              A glimpse into some of my most innovative and impactful engineering solutions
             </p>
           </motion.div>
 

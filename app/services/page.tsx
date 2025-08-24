@@ -5,6 +5,7 @@ import TestimonialCarousel, { TestimonialItem } from '@/components/TestimonialCa
 import { useState } from 'react'
 import Image from 'next/image'
 import { ArrowRight, X, Building2, Map, Leaf, Users, Shield, Zap, Globe } from 'lucide-react'
+import AccentShape from '@/components/decor/AccentShape'
 
 const ServicesPage = () => {
   const [selectedService, setSelectedService] = useState<number | null>(null)
@@ -218,6 +219,7 @@ const ServicesPage = () => {
       {/* Services Grid */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          <AccentShape variant="triangles" size={110} className="text-primary/50 absolute -mt-24 left-6 opacity-30 hidden md:block" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

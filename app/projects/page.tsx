@@ -20,24 +20,24 @@ const ProjectsPage = () => {
   const projects = [
     {
       id: 1,
-      title: 'Hudson River Bridge Renovation',
+      title: 'Third Mainland Bridge Rehabilitation',
       category: 'Bridges',
       tags: ['Bridges', 'Infrastructure'],
   image: '/images/projects/placeholder.png',
-      budget: '$25M',
+      budget: '₦18B',
       timeline: '24 Months',
       team: '45 Engineers',
-      location: 'New York, NY',
-      description: 'Complete renovation of a historic bridge spanning the Hudson River, incorporating modern seismic retrofitting while preserving architectural heritage.',
-      problem: 'Aging infrastructure with seismic vulnerabilities and deteriorating structural elements.',
-      solution: 'Implemented innovative carbon fiber reinforcement, seismic isolation bearings, and corrosion-resistant materials.',
+      location: 'Lagos, Nigeria',
+      description: 'Comprehensive rehabilitation of Africa’s busiest bridge corridor, enhancing structural durability and traffic safety while minimizing disruption.',
+      problem: 'Progressive deterioration, chloride ingress and bearing fatigue impacting serviceability and safety.',
+      solution: 'Applied carbon fiber wrapping, replaced bearings, introduced cathodic protection and optimized traffic phasing.',
       role: 'Lead Structural Engineer',
-      challenges: 'Working within strict historical preservation guidelines while meeting modern safety standards.',
+      challenges: 'Maintaining traffic flow (180k+ vehicles/day) while executing substructure strengthening in a marine environment.',
       outcomes: {
-        'Seismic Rating': 'Improved from D to A',
-        'Load Capacity': 'Increased by 40%',
-        'Lifespan': 'Extended by 50+ years',
-        'Cost Savings': '25% under budget'
+        'Structural Capacity': 'Increased by 35%',
+        'Traffic Disruption': 'Reduced by 45%',
+        'Design Life': 'Extended 30+ yrs',
+        'Budget Variance': '12% under'
       },
   gallery: Array(5).fill('/images/projects/placeholder.png'),
       phases: [
@@ -49,24 +49,24 @@ const ProjectsPage = () => {
     },
     {
       id: 2,
-      title: 'Green Office Complex',
+      title: 'Abuja Green Office Complex',
       category: 'Buildings',
       tags: ['Buildings', 'Sustainable'],
       image: '/images/projects/placeholder.png',
-      budget: '$45M',
+      budget: '₦34B',
       timeline: '18 Months',
       team: '60 Engineers',
-      location: 'San Francisco, CA',
-      description: 'LEED Platinum certified office complex featuring advanced sustainable technologies, green roofs, and renewable energy integration.',
-      problem: 'Need for large-scale commercial development with minimal environmental impact in a dense urban area.',
-      solution: 'Designed with passive solar principles, rainwater harvesting, and integrated renewable energy systems.',
+      location: 'Abuja, Nigeria',
+      description: 'High‑performance commercial hub targeting EDGE/LEED standards with passive cooling, PV integration and smart water reuse.',
+      problem: 'Rising cooling loads and water scarcity driving OPEX in emerging business district.',
+      solution: 'Optimized orientation, high albedo envelope, hybrid PV + battery microgrid and rain / grey water recycling.',
       role: 'Sustainable Design Lead',
-      challenges: 'Balancing sustainability goals with commercial viability and tenant requirements.',
+      challenges: 'Balancing capex constraints with lifecycle efficiency gains for mixed tenant profiles.',
       outcomes: {
-        'Energy Efficiency': 'Reduced by 40%',
-        'Water Usage': 'Decreased by 35%',
-        'Carbon Footprint': 'Offset by 60%',
-        'LEED Score': '95/100 points'
+        'Energy Use Intensity': '-42%',
+        'Water Consumption': '-38%',
+        'Operational Carbon': '-58%',
+        'Green Certification': 'EDGE/LEED Platinum'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -84,24 +84,24 @@ const ProjectsPage = () => {
     },
     {
       id: 3,
-      title: 'Smart Highway System',
+      title: 'Lagos–Ibadan Expressway ITS Upgrade',
       category: 'Roads',
       tags: ['Roads', 'Infrastructure'],
       image: '/images/projects/placeholder.png',
-      budget: '$180M',
+      budget: '₦140B',
       timeline: '36 Months',
       team: '120 Engineers',
-      location: 'Los Angeles, CA',
-      description: 'Intelligent transportation system with embedded sensors, dynamic traffic management, and autonomous vehicle infrastructure.',
-      problem: 'Chronic traffic congestion and outdated transportation infrastructure unable to handle growing urban mobility demands.',
-      solution: 'Implemented smart traffic signals, embedded sensors, and dedicated autonomous vehicle lanes with real-time data analytics.',
+      location: 'Ogun / Oyo States, Nigeria',
+      description: 'Intelligent transport deployment adding real‑time traffic sensing, variable message signs and incident response integration.',
+      problem: 'Severe congestion, crash response delays and limited data for capacity planning.',
+      solution: 'Deployed fiber backbone, weigh‑in‑motion, ANPR cameras, central control algorithms and solar backup.',
       role: 'Infrastructure Planning Director',
-      challenges: 'Coordinating multiple stakeholders, managing extensive utility relocations, and ensuring minimal disruption during construction.',
+      challenges: 'Coordinating federal/state concessions while phasing installations under live traffic.',
       outcomes: {
-        'Traffic Flow': 'Improved by 35%',
-        'Travel Time': 'Reduced by 25%',
-        'Safety': 'Accidents decreased by 30%',
-        'Capacity': 'Increased by 50%'
+        'Average Speed': '+28%',
+        'Incident Clearance': '-40% time',
+        'Crash Rate': '-32%',
+        'Throughput': '+33%'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -119,24 +119,24 @@ const ProjectsPage = () => {
     },
     {
       id: 4,
-      title: 'Solar Farm Infrastructure',
+      title: 'Kano Solar Farm Infrastructure',
       category: 'Sustainable',
       tags: ['Sustainable', 'Infrastructure'],
       image: '/images/projects/placeholder.png',
-      budget: '$75M',
+      budget: '₦58B',
       timeline: '20 Months',
       team: '35 Engineers',
-      location: 'Phoenix, AZ',
-      description: 'Large-scale solar energy facility with innovative tracking systems and energy storage integration.',
-      problem: 'Need for renewable energy infrastructure to meet growing electricity demands while reducing carbon emissions.',
-      solution: 'Designed dual-axis solar tracking system with battery storage and smart grid integration for optimal energy production.',
+      location: 'Kano, Nigeria',
+      description: 'Utility‑scale PV + storage plant leveraging dual‑axis trackers and grid‑stabilizing battery systems.',
+      problem: 'Grid instability and unmet industrial demand with rising diesel generation costs.',
+      solution: 'Optimized tracker layout, BESS integration and SCADA for dispatchable renewable output.',
       role: 'Renewable Energy Specialist',
-      challenges: 'Optimizing panel placement for maximum efficiency while managing environmental impact and land use.',
+      challenges: 'Dust mitigation and harmonic control for grid compliance in arid environment.',
       outcomes: {
-        'Energy Production': 'Increased by 45%',
-        'Efficiency': 'Improved by 30%',
-        'Carbon Offset': '50,000 tons/year',
-        'ROI': 'Achieved in 8 years'
+        'Capacity Factor': '+18%',
+        'Energy Yield': '+33%',
+        'Carbon Offset': '55,000 t/yr',
+        'Payback': '7.2 years'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -154,24 +154,24 @@ const ProjectsPage = () => {
     },
     {
       id: 5,
-      title: 'Underground Metro Station',
+      title: 'Lagos Blue Line Underground Station',
       category: 'Infrastructure',
       tags: ['Infrastructure', 'Buildings'],
       image: '/images/projects/placeholder.png',
-      budget: '$320M',
+      budget: '₦250B',
       timeline: '48 Months',
       team: '85 Engineers',
-      location: 'Chicago, IL',
-      description: 'State-of-the-art underground transportation hub with advanced ventilation systems and emergency protocols.',
-      problem: 'Need for expanded public transportation capacity in dense urban environment with complex underground conditions.',
-      solution: 'Designed deep-bore tunnel system with innovative ventilation, emergency egress, and passenger flow optimization.',
+      location: 'Lagos, Nigeria',
+      description: 'Underground mass transit station integrating natural ventilation stacks and advanced egress modelling.',
+      problem: 'Capacity shortfalls and evacuation bottlenecks in expanding urban rail network.',
+      solution: 'Implemented deep diaphragm walls, smoke management CFD and optimized passenger circulation.',
       role: 'Tunnel Engineering Lead',
-      challenges: 'Managing groundwater, coordinating with existing infrastructure, and ensuring passenger safety in emergency scenarios.',
+      challenges: 'Challenging water table and adjacent heritage structures during excavation.',
       outcomes: {
-        'Passenger Capacity': 'Increased by 60%',
-        'Safety Rating': 'Exceeded by 25%',
-        'Construction Time': 'Completed 2 months early',
-        'Cost Efficiency': '15% under budget'
+        'Passenger Capacity': '+55%',
+        'Safety Compliance': '+22%',
+        'Schedule Performance': '2 months early',
+        'Cost Efficiency': '15% under'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -189,24 +189,24 @@ const ProjectsPage = () => {
     },
     {
       id: 6,
-      title: 'Coastal Protection System',
+      title: 'Lekki Coastal Protection System',
       category: 'Infrastructure',
       tags: ['Infrastructure', 'Sustainable'],
       image: '/images/projects/placeholder.png',
-      budget: '$95M',
+      budget: '₦72B',
       timeline: '28 Months',
       team: '55 Engineers',
-      location: 'Miami, FL',
-      description: 'Comprehensive coastal defense system combining natural and engineered solutions for climate resilience.',
-      problem: 'Increasing coastal erosion and vulnerability to storm surges due to climate change and rising sea levels.',
-      solution: 'Implemented hybrid approach with artificial reefs, seawalls, and natural dune restoration for sustainable protection.',
+      location: 'Lagos, Nigeria',
+      description: 'Hybrid grey-green defence system integrating revetments, dune nourishment and artificial reef modules.',
+      problem: 'Accelerated erosion and surge risk threatening shoreline assets.',
+      solution: 'Combined geotextile tubes, reef attenuation and dune restoration with monitoring.',
       role: 'Coastal Engineering Specialist',
-      challenges: 'Balancing protection needs with environmental preservation and public access requirements.',
+      challenges: 'Balancing property protection with public access and ecosystem integrity.',
       outcomes: {
-        'Storm Protection': 'Enhanced by 70%',
-        'Erosion Control': 'Reduced by 80%',
-        'Environmental Impact': 'Minimized by 60%',
-        'Public Access': 'Maintained 100%'
+        'Storm Attenuation': '+65%',
+        'Erosion Reduction': '-78%',
+        'Habitat Impact': 'Minimized 55%',
+        'Public Access': 'Maintained'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -224,24 +224,24 @@ const ProjectsPage = () => {
     },
     {
       id: 7,
-      title: 'Sports Stadium Complex',
+      title: 'National Sports Stadium Complex',
       category: 'Buildings',
       tags: ['Buildings', 'Infrastructure'],
       image: '/images/projects/placeholder.png',
-      budget: '$650M',
+      budget: '₦480B',
       timeline: '42 Months',
       team: '95 Engineers',
-      location: 'Dallas, TX',
-      description: 'Multi-purpose sports and entertainment venue with retractable roof and advanced crowd management systems.',
-      problem: 'Need for modern sports facility with flexible configurations, excellent acoustics, and efficient crowd flow.',
-      solution: 'Designed innovative roof system, optimized seating arrangements, and integrated technology for enhanced fan experience.',
+      location: 'Abuja, Nigeria',
+      description: 'Multi‑purpose arena with retractable roof, modular seating and integrated evacuation analytics.',
+      problem: 'Demand for flexible national venue balancing acoustics, comfort and rapid turnover.',
+      solution: 'Engineered long‑span trusses, adaptive roof kinematics and crowd flow simulation.',
       role: 'Structural Design Lead',
-      challenges: 'Creating large-span structures, managing complex roof mechanics, and ensuring rapid evacuation capabilities.',
+      challenges: 'Precision roof mechanics and large-span vibration control.',
       outcomes: {
-        'Seating Capacity': '65,000 seats',
-        'Roof Operation': '15 minutes',
-        'Evacuation Time': 'Under 8 minutes',
-        'Acoustic Quality': 'Exceeded standards by 30%'
+        'Seating Capacity': '65,000',
+        'Roof Operation': '15 min',
+        'Evacuation Time': '< 8 min',
+        'Acoustic Performance': '+28% over baseline'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -259,24 +259,24 @@ const ProjectsPage = () => {
     },
     {
       id: 8,
-      title: 'Water Treatment Plant',
+      title: 'Port Harcourt Water Treatment Plant',
       category: 'Infrastructure',
       tags: ['Infrastructure', 'Sustainable'],
       image: '/images/projects/placeholder.png',
-      budget: '$280M',
+      budget: '₦210B',
       timeline: '38 Months',
       team: '70 Engineers',
-      location: 'Denver, CO',
-      description: 'Advanced water purification facility with membrane filtration and energy recovery systems.',
-      problem: 'Aging water infrastructure unable to meet growing demand and new water quality standards.',
-      solution: 'Implemented cutting-edge membrane technology, energy recovery systems, and smart monitoring for optimal performance.',
+      location: 'Port Harcourt, Nigeria',
+      description: 'Advanced membrane filtration and energy recovery facility boosting potable supply resilience.',
+      problem: 'Aging assets and demand growth exceeding safe yield capacity.',
+      solution: 'Installed ultrafiltration trains, biogas CHP and digital water quality monitoring.',
       role: 'Water Systems Engineer',
-      challenges: 'Integrating new technologies with existing systems while maintaining continuous operation.',
+      challenges: 'Brownfield tie‑ins while maintaining uninterrupted service.',
       outcomes: {
-        'Water Quality': 'Improved by 95%',
-        'Energy Efficiency': 'Increased by 40%',
-        'Treatment Capacity': 'Doubled',
-        'Operating Costs': 'Reduced by 25%'
+        'Water Quality': '↑ 95%',
+        'Energy Efficiency': '+40%',
+        'Capacity': '2x',
+        'OPEX': '-25%'
       },
       gallery: [
         '/images/projects/placeholder.png',
@@ -363,7 +363,7 @@ const ProjectsPage = () => {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center text-white"
         >
-          <h1 className="hero-heading mb-3 md:mb-4">Our Projects</h1>
+          <h1 className="hero-heading mb-3 md:mb-4">My Project Portfolio</h1>
           <p className="hero-sub text-gray-200 max-w-3xl mx-auto">
             Showcasing innovative engineering solutions that transform communities and build sustainable futures
           </p>
@@ -384,7 +384,7 @@ const ProjectsPage = () => {
               Project Portfolio
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4 md:mb-8">
-              Explore our diverse range of engineering achievements across multiple sectors
+              Explore my diverse engineering work across bridges, transport, energy, and infrastructure in Nigeria
             </p>
             
             {/* Filter Controls */}
