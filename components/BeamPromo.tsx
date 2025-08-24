@@ -5,8 +5,10 @@ import { X } from 'lucide-react'
 
 /**
  * BeamPromo: non-invasive promotional popup for Beam Calculator.
- * Triggers: time (15-30s random), scroll (30-50%), exit intent after 10s.
+ * Triggers (current): time (12–24s random), scroll (25–40%), exit intent (after 6s arm).
  * Frequency: only on first or second visit (localStorage counter 'beamPromoVisits').
+ * Fix: Visit counter now increments ONLY when the promo actually shows (previously incremented twice causing early lock-out).
+ * Dev override: append ?forcePromo=1 to URL to force showing regardless of visit count.
  */
 const BeamPromo = () => {
   const [visible, setVisible] = useState(false)
@@ -15,34 +17,47 @@ const BeamPromo = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const exitArmedRef = useRef(false)
 
-  // Determine if we should show based on visit count
+  // Determine if we should show based on visit count & attach triggers
   useEffect(() => {
     if (typeof window === 'undefined') return
     const key = 'beamPromoVisits'
-    const visits = parseInt(localStorage.getItem(key) || '0', 10)
-    if (visits >= 2) return // do not show again
-    localStorage.setItem(key, String(visits + 1))
+    const force = window.location.search.includes('forcePromo=1')
+    const visitsRaw = parseInt(localStorage.getItem(key) || '0', 10)
+    const visits = force ? 0 : visitsRaw
+    if (visits >= 2) return // exceeded allowed views
 
-  // Random timer trigger 12-24s (adjusted)
-  const delay = 12000 + Math.random() * 12000
-    timerRef.current = setTimeout(() => setVisible(true), delay)
+    let didIncrement = false
 
-    // Scroll trigger 25-40% (slightly earlier)
+    const show = () => {
+      if (didIncrement || visible || dismissed) return
+      setVisible(true)
+      if (!force) {
+        localStorage.setItem(key, String(visits + 1))
+      }
+      didIncrement = true
+    }
+
+    // Pre-compute thresholds so they remain stable
+    const delay = 12000 + Math.random() * 12000 // 12–24s
+    const scrollThreshold = 0.25 + Math.random() * 0.15 // 0.25–0.40
+
+    timerRef.current = setTimeout(show, delay)
+
     const onScroll = () => {
       if (visible || dismissed) return
       const scrollProgress = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight
-      if (scrollProgress >= (0.25 + Math.random() * 0.15)) {
-        setVisible(true)
+      if (scrollProgress >= scrollThreshold) {
+        show()
         window.removeEventListener('scroll', onScroll)
       }
     }
     window.addEventListener('scroll', onScroll)
 
-  // Exit intent after 6s (earlier)
-  const armExitTimer = setTimeout(() => { exitArmedRef.current = true }, 6000)
+    // Exit intent arm after 6s
+    const armExitTimer = setTimeout(() => { exitArmedRef.current = true }, 6000)
     const onMouseLeave = (e: MouseEvent) => {
       if (!exitArmedRef.current || visible || dismissed) return
-      if (e.clientY <= 0) { setVisible(true) }
+      if (e.clientY <= 0) show()
     }
     document.addEventListener('mouseleave', onMouseLeave)
 
@@ -50,9 +65,12 @@ const BeamPromo = () => {
       if (timerRef.current) clearTimeout(timerRef.current)
       window.removeEventListener('scroll', onScroll)
       document.removeEventListener('mouseleave', onMouseLeave)
+      // armExitTimer cleared regardless
       clearTimeout(armExitTimer)
     }
-  }, [visible, dismissed])
+  // We intentionally exclude visible/dismissed from deps to avoid re-registering & double counting.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const close = useCallback(() => {
     setVisible(false)
