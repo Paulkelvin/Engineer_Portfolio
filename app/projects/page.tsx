@@ -4,11 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, ExternalLink, Download, Play, MapPin, Calendar, DollarSign, Users, Award, Building2, Leaf } from 'lucide-react'
+import { useRef, useEffect } from 'react'
 
 const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<number | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [activeFilter, setActiveFilter] = useState('All')
+
+  // Refs for auto-centering active filter on mobile
+  const filterContainerRef = useRef<HTMLDivElement | null>(null)
+  const filterRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const filters = ['All', 'Bridges', 'Buildings', 'Roads', 'Sustainable', 'Infrastructure']
 
@@ -322,6 +327,20 @@ const ProjectsPage = () => {
     }
   }
 
+  const getFilterIcon = (filter: string) => {
+    if (filter === 'All') return Award
+    return getCategoryIcon(filter)
+  }
+
+  // Auto-scroll active filter into center on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const btn = filterRefs.current[activeFilter]
+    if (btn && filterContainerRef.current) {
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    }
+  }, [activeFilter])
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -368,21 +387,51 @@ const ProjectsPage = () => {
               Explore our diverse range of engineering achievements across multiple sectors
             </p>
             
-            {/* Filter Buttons */}
-            <div className="flex flex-wrap justify-center gap-3">
-              {filters.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-                    activeFilter === filter
-                      ? 'bg-primary text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
+            {/* Filter Controls */}
+            {/* Mobile: horizontal scrollable pill bar */}
+            <div className="md:hidden relative -mx-4 px-4">
+              <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent" />
+              <div
+                ref={filterContainerRef}
+                className="flex overflow-x-auto no-scrollbar space-x-3 snap-x snap-mandatory py-1"
+                role="tablist"
+                aria-label="Project categories"
+              >
+                {filters.map((filter) => {
+                  const Icon = getFilterIcon(filter)
+                  const active = activeFilter === filter
+                  return (
+                    <button
+                      key={filter}
+                      ref={(el) => { filterRefs.current[filter] = el }}
+                      onClick={() => setActiveFilter(filter)}
+                      role="tab"
+                      aria-selected={active}
+                      className={`snap-start flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${active ? 'bg-primary text-white shadow-lg scale-[1.03]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{filter}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Desktop: centered multi-line pills */}
+            <div className="hidden md:flex flex-wrap justify-center gap-3">
+              {filters.map((filter) => {
+                const active = activeFilter === filter
+                return (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${active ? 'bg-primary text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    {filter}
+                  </button>
+                )
+              })}
             </div>
           </motion.div>
 

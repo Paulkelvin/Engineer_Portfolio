@@ -19,6 +19,7 @@ interface Props {
   heading?: string
   subheading?: string
   accent?: 'primary' | 'secondary'
+  showBadge?: boolean
 }
 
 const accentClasses: Record<string, string> = {
@@ -26,7 +27,7 @@ const accentClasses: Record<string, string> = {
   secondary: 'from-secondary/90 to-secondary'
 }
 
-export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', subheading, accent = 'primary' }: Props) => {
+export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', subheading, accent = 'primary', showBadge = true }: Props) => {
   const [index, setIndex] = useState(0)
   const current = items[index]
 
@@ -70,9 +71,11 @@ export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', su
                     <div className="text-sm text-primary font-medium">{current.role}{current.company ? ' • ' + current.company : ''}</div>
                     {current.location && <div className="text-xs text-gray-500 mt-1">{current.location}</div>}
                   </div>
-                  <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r ${accentClasses[accent]} text-white text-xs font-semibold tracking-wide shadow`}> 
-                    <span>Satisfied Client</span>
-                  </div>
+                  {showBadge && (
+                    <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${accentClasses[accent]} text-white text-[10px] font-semibold tracking-wide shadow`}> 
+                      <span>Satisfied Client</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -82,10 +85,10 @@ export const TestimonialCarousel = ({ items, heading = 'Client Testimonials', su
         {/* Controls */}
         {items.length > 1 && (
           <>
-            <button onClick={prev} aria-label="Previous testimonial" className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 p-5 md:p-6 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <button onClick={prev} aria-label="Previous testimonial" className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-xl bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40 z-20">
               <ChevronLeft className="h-5 w-5 text-gray-700 group-active:translate-x-[-2px] transition" />
             </button>
-            <button onClick={next} aria-label="Next testimonial" className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 p-5 md:p-6 rounded-full bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <button onClick={next} aria-label="Next testimonial" className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 p-4 md:p-5 rounded-xl bg-white/95 shadow-lg ring-1 ring-gray-200 hover:bg-gray-50 transition group active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40 z-20">
               <ChevronRight className="h-5 w-5 text-gray-700 group-active:translate-x-[2px] transition" />
             </button>
           </>

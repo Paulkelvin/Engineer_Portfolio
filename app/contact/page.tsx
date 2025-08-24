@@ -11,6 +11,7 @@ const ContactPage = () => {
     name: '',
     email: '',
     service: '',
+    otherService: '',
     message: '',
     file: null as File | null
   })
@@ -26,7 +27,8 @@ const ContactPage = () => {
     'Geotechnical Surveys',
     'BIM Modeling',
     'Infrastructure Planning',
-    'Construction Oversight'
+    'Construction Oversight',
+    'Other'
   ]
 
   const testimonials: TestimonialItem[] = [
@@ -76,6 +78,7 @@ const ContactPage = () => {
         name: '',
         email: '',
         service: '',
+        otherService: '',
         message: '',
         file: null
       })
@@ -168,18 +171,31 @@ const ContactPage = () => {
                   <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
                     Service Interest
                   </label>
-                  <select
-                    id="service"
-                    name="service"
-                    value={formData.service}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
-                  >
-                    <option value="">Select a service</option>
-                    {services.map((service) => (
-                      <option key={service} value={service}>{service}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="service"
+                      name="service"
+                      value={formData.service}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 appearance-none"
+                    >
+                      <option value="">Select a service</option>
+                      {services.map((service) => (
+                        <option key={service} value={service}>{service}</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rotate-45 border-b-2 border-r-2 border-gray-400" />
+                  </div>
+                  {formData.service === 'Other' && (
+                    <input
+                      type="text"
+                      name="otherService"
+                      value={formData.otherService}
+                      onChange={handleInputChange}
+                      placeholder="Please specify"
+                      className="mt-3 w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -357,6 +373,7 @@ const ContactPage = () => {
             items={testimonials}
             heading="What Clients Say"
             subheading="Voices from partners and planners across Nigerian projects"
+            showBadge={false}
           />
         </div>
   </section>
@@ -371,12 +388,11 @@ const ContactPage = () => {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5 leading-snug">
               Ready to Start Your Project?
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Let's discuss how we can bring your infrastructure vision to life with innovative, 
-              sustainable engineering solutions. No project is too big or too small.
+            <p className="text-base md:text-xl text-blue-100 mb-8 leading-relaxed md:leading-snug max-w-2xl mx-auto">
+              Let’s talk about your goals and map a clear path forward—efficient, resilient, and sustainable.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

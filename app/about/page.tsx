@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronDown, ChevronUp, ArrowRight, GraduationCap, Award, Briefcase, Leaf, Zap, Shield, Globe, Building2, Users } from 'lucide-react'
+import { ChevronDown, ChevronUp, ArrowRight, GraduationCap, Award, Briefcase, Leaf, Zap, Shield, Globe, Building2, Users, Sparkles } from 'lucide-react'
 
 const AboutPage = () => {
   const [expandedTimeline, setExpandedTimeline] = useState<number | null>(null)
@@ -118,10 +118,10 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-8 leading-tight">
               My Engineering Journey
             </h2>
-            <div className="text-lg text-gray-600 leading-relaxed space-y-4">
+            <div className="text-base md:text-lg text-gray-600 leading-relaxed md:leading-loose space-y-4 md:space-y-6">
               <p>
                 My passion for civil engineering began at an early age, fascinated by how structures 
                 could shape communities and improve lives. This curiosity evolved into a 15-year career 
@@ -153,11 +153,11 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
               Professional Journey
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              A timeline of my education, certifications, and career milestones across Nigeria & beyond
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
+              A timeline of key education, certifications, and milestone projects.
             </p>
           </motion.div>
 
@@ -225,11 +225,11 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
               Technical Expertise
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive skills developed through years of hands-on project delivery in Nigeria and internationally
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
+              Combined design, analysis, and delivery capabilities built through complex project execution.
             </p>
           </motion.div>
 
@@ -299,11 +299,12 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-4">
+            <h2 className="flex items-center justify-center gap-3 text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5 leading-tight">
+              <span className="inline-flex p-2 rounded-lg bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></span>
               Areas of Interest
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Emerging technologies and innovations shaping the future of sustainable infrastructure in West Africa
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed md:leading-snug">
+              Emerging technologies and innovations shaping resilient, low-impact infrastructure.
             </p>
           </motion.div>
 
