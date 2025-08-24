@@ -77,7 +77,7 @@ const Navigation = () => {
                   <motion.div key={item.name} whileHover={{ y: -2 }} className="px-3 relative group">
                     <Link href={item.href} className={`relative inline-flex items-center gap-1 text-sm font-medium tracking-wide transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-600 group-hover:text-primary'}`}>
                       <span className="relative z-10 py-2">{item.name}</span>
-                      <motion.span className="relative z-10 inline-block text-[10px] opacity-60">▾</motion.span>
+                      <motion.span className="relative z-10 inline-block text-[11px] md:text-[12px] opacity-60">▾</motion.span>
                       {active && (
                         <motion.span layoutId="nav-active-pill" className="absolute inset-0 rounded-full bg-primary/10" transition={{ type: 'spring', stiffness: 300, damping: 24 }} />
                       )}
@@ -156,13 +156,23 @@ const Navigation = () => {
                         <span>{item.name}</span>
                         <span className={`transition-transform duration-300 text-base leading-none translate-y-px ${mobileServicesOpen ? 'rotate-180' : ''}`}>▾</span>
                       </button>
-                      {mobileServicesOpen && (
-                        <div id="mobile-services-submenu" className="pl-3 pb-2 space-y-1">
-                          {item.dropdown.map(link => (
-                            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 ${pathname===link.href?'text-primary bg-blue-50':'text-gray-600 hover:text-primary hover:bg-gray-50'}`}>{link.name}</Link>
-                          ))}
-                        </div>
-                      )}
+                      <AnimatePresence initial={false}>
+                        {mobileServicesOpen && (
+                          <motion.div
+                            id="mobile-services-submenu"
+                            key="services-submenu"
+                            initial={{ height: 0, opacity: 0, y: -4 }}
+                            animate={{ height: 'auto', opacity: 1, y: 0 }}
+                            exit={{ height: 0, opacity: 0, y: -4 }}
+                            transition={{ duration: 0.36, ease: [0.22,0.68,0,1] }}
+                            className="pl-3 pb-2 space-y-1 overflow-hidden"
+                          >
+                            {item.dropdown.map(link => (
+                              <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 ${pathname===link.href?'text-primary bg-blue-50':'text-gray-600 hover:text-primary hover:bg-gray-50'}`}>{link.name}</Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   )
                 })}

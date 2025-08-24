@@ -1,14 +1,18 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 
 /**
  * BeamPromo: non-invasive promotional popup for Beam Calculator.
  * Triggers (current): time (12–24s random), scroll (25–40%), exit intent (after 6s arm).
- * Frequency: only on first or second visit (localStorage counter 'beamPromoVisits').
- * Fix: Visit counter now increments ONLY when the promo actually shows (previously incremented twice causing early lock-out).
- * Dev override: append ?forcePromo=1 to URL to force showing regardless of visit count.
+ * Frequency: only on first or second show (new key 'beamPromoShows').
+ * Fixes:
+ *  - Visit counter now increments ONLY when the promo actually becomes visible.
+ *  - Migrates legacy inflated 'beamPromoVisits' counts so popup reappears if you were locked out prematurely.
+ *  - Adds reset (?resetPromo=1) & force (?forcePromo=1) URL params for testing.
+ * UX: Framer Motion for smoother mount/unmount (scale+opacity) and subtle backdrop blur.
  */
 const BeamPromo = () => {
   const [visible, setVisible] = useState(false)
@@ -17,30 +21,46 @@ const BeamPromo = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const exitArmedRef = useRef(false)
 
-  // Determine if we should show based on visit count & attach triggers
+  // Show gating & triggers
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const key = 'beamPromoVisits'
-    const force = window.location.search.includes('forcePromo=1')
-    const visitsRaw = parseInt(localStorage.getItem(key) || '0', 10)
-    const visits = force ? 0 : visitsRaw
-    if (visits >= 2) return // exceeded allowed views
+    const legacyKey = 'beamPromoVisits'
+    const showsKey = 'beamPromoShows'
+    const search = window.location.search
+    const force = search.includes('forcePromo=1')
+    const reset = search.includes('resetPromo=1')
+
+    if (reset) {
+      localStorage.removeItem(legacyKey)
+      localStorage.removeItem(showsKey)
+    }
+
+    // Migration: if we previously stored inflated visits but no shows yet
+    if (!localStorage.getItem(showsKey)) {
+      const legacy = parseInt(localStorage.getItem(legacyKey) || '0', 10)
+      if (legacy > 0) {
+        // If legacy >=2 we treat it as 1 show to allow one more legitimate show
+        const derivedShows = legacy >= 2 ? 1 : legacy
+        localStorage.setItem(showsKey, String(derivedShows))
+      }
+    }
+
+    const showsRaw = parseInt(localStorage.getItem(showsKey) || '0', 10)
+    const shows = force ? 0 : showsRaw
+    if (shows >= 2 && !force) return
 
     let didIncrement = false
-
     const show = () => {
       if (didIncrement || visible || dismissed) return
       setVisible(true)
       if (!force) {
-        localStorage.setItem(key, String(visits + 1))
+        localStorage.setItem(showsKey, String(shows + 1))
       }
       didIncrement = true
     }
 
-    // Pre-compute thresholds so they remain stable
-    const delay = 12000 + Math.random() * 12000 // 12–24s
-    const scrollThreshold = 0.25 + Math.random() * 0.15 // 0.25–0.40
-
+    const delay = 12000 + Math.random() * 12000
+    const scrollThreshold = 0.25 + Math.random() * 0.15
     timerRef.current = setTimeout(show, delay)
 
     const onScroll = () => {
@@ -53,7 +73,6 @@ const BeamPromo = () => {
     }
     window.addEventListener('scroll', onScroll)
 
-    // Exit intent arm after 6s
     const armExitTimer = setTimeout(() => { exitArmedRef.current = true }, 6000)
     const onMouseLeave = (e: MouseEvent) => {
       if (!exitArmedRef.current || visible || dismissed) return
@@ -65,11 +84,9 @@ const BeamPromo = () => {
       if (timerRef.current) clearTimeout(timerRef.current)
       window.removeEventListener('scroll', onScroll)
       document.removeEventListener('mouseleave', onMouseLeave)
-      // armExitTimer cleared regardless
       clearTimeout(armExitTimer)
     }
-  // We intentionally exclude visible/dismissed from deps to avoid re-registering & double counting.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const close = useCallback(() => {
@@ -85,59 +102,62 @@ const BeamPromo = () => {
     }, 2500)
   }
 
-  if (!visible && !showInfo) return null
-
   return (
-    <div className="fixed z-[70] bottom-4 right-4 max-w-xs w-full sm:max-w-sm animate-in">
-      {/* Popup */}
-      {visible && !showInfo && (
-        <div
-          role="dialog"
-          aria-label="Beam Calculator Promotion"
-          className="relative group rounded-xl shadow-xl bg-white border border-blue-100 p-5 pr-7 text-sm leading-relaxed ring-1 ring-blue-200/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition transform data-[state=closed]:opacity-0"
-          style={{ boxShadow: '0 8px 28px -4px rgba(0,123,255,0.25), 0 2px 6px -1px rgba(0,0,0,0.1)' }}
-        >
-          <button
-            aria-label="Close promotion"
-            onClick={close}
-            className="absolute top-2 right-2 p-1 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
+    <div className="fixed z-[70] bottom-4 right-4 max-w-xs w-full sm:max-w-sm pointer-events-none">
+      <AnimatePresence initial={false}>
+        {visible && !showInfo && (
+          <motion.div
+            key="promo"
+            role="dialog"
+            aria-label="Beam Calculator Promotion"
+            initial={{ opacity: 0, y: 24, scale: 0.9, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: 12, scale: 0.92, filter: 'blur(4px)' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28, mass: 0.7 }}
+            className="relative group rounded-xl shadow-xl bg-white/95 backdrop-blur border border-blue-100 p-5 pr-7 text-sm leading-relaxed ring-1 ring-blue-200/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 pointer-events-auto"
+            style={{ boxShadow: '0 8px 28px -4px rgba(0,123,255,0.25), 0 2px 6px -1px rgba(0,0,0,0.1)' }}
           >
-            <X className="h-4 w-4" />
-          </button>
-          <h4 className="font-semibold mb-2 text-gray-800 text-base">Ready to test your beam designs?</h4>
-          <p className="text-gray-600 mb-4">Try our <span className="font-semibold text-primary">Free Beam Calculator</span> now!</p>
-          <div className="flex flex-col xs:flex-row gap-2">
-            <Link
-              href="/services/beam-calculator"
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium text-sm shadow hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
-              aria-label="Go to Beam Calculator"
-              onClick={close}
-            >
-              Yes, Try It
-            </Link>
             <button
-              onClick={handleNoThanks}
-              className="text-xs text-gray-500 hover:text-gray-700 underline decoration-dotted focus:outline-none"
-              aria-label="Dismiss promotion"
+              aria-label="Close promotion"
+              onClick={close}
+              className="absolute top-2 right-2 p-1 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
             >
-              No, Thanks
+              <X className="h-4 w-4" />
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Info tooltip */}
-      {showInfo && (
-        <div className="relative rounded-lg bg-white border border-blue-100 px-4 py-3 text-xs shadow-md animate-fade">
-          <p className="text-gray-600"><span className="font-semibold text-primary">Tip:</span> Beam Calculator lives under <span className="font-medium">Services › Beam Calculator</span> anytime.</p>
-        </div>
-      )}
-      <style jsx>{`
-        .animate-in { animation: slideIn 0.6s cubic-bezier(.22,.68,0,1); }
-        .animate-fade { animation: fadeOut 2.6s forwards; }
-        @keyframes slideIn { from { opacity:0; transform: translateY(20px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
-        @keyframes fadeOut { 0% { opacity:1; } 75% { opacity:1; } 100% { opacity:0; transform: translateY(4px); } }
-      `}</style>
+            <h4 className="font-semibold mb-2 text-gray-800 text-base">Ready to test your beam designs?</h4>
+            <p className="text-gray-600 mb-4">Try our <span className="font-semibold text-primary">Free Beam Calculator</span> now!</p>
+            <div className="flex flex-col xs:flex-row gap-2">
+              <Link
+                href="/services/beam-calculator"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-white font-medium text-sm shadow hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
+                aria-label="Go to Beam Calculator"
+                onClick={close}
+              >
+                Yes, Try It
+              </Link>
+              <button
+                onClick={handleNoThanks}
+                className="text-xs text-gray-500 hover:text-gray-700 underline decoration-dotted focus:outline-none"
+                aria-label="Dismiss promotion"
+              >
+                No, Thanks
+              </button>
+            </div>
+          </motion.div>
+        )}
+        {showInfo && (
+          <motion.div
+            key="info"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="relative rounded-lg bg-white/95 backdrop-blur border border-blue-100 px-4 py-3 text-xs shadow-md pointer-events-auto"
+          >
+            <p className="text-gray-600"><span className="font-semibold text-primary">Tip:</span> Beam Calculator lives under <span className="font-medium">Services › Beam Calculator</span> anytime.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
